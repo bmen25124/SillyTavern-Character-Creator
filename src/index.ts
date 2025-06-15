@@ -664,7 +664,7 @@ async function handlePopupUI() {
           label: char.name,
         }));
 
-        buildFancyDropdown('#charCreator_characterSelector', {
+        const characterSelector = buildFancyDropdown('#charCreator_characterSelector', {
           initialList: characterItems,
           initialValues: activeSession.selectedCharacterIndexes,
           placeholderText: 'Select characters...',
@@ -673,6 +673,10 @@ async function handlePopupUI() {
             activeSession.selectedCharacterIndexes = newValues;
             saveSession();
           },
+        });
+        const includeCharsClearButton = popupContainer.querySelector('#charCreator_clear-includeChars-button') as HTMLInputElement;
+        includeCharsClearButton.addEventListener('click', () => {
+          characterSelector.deselectAll();
         });
       }
 
