@@ -39,6 +39,6 @@
         "diff": "^8.0.1",
         "fast-xml-parser": "^5.0.9",
         "handlebars": "^4.7.8",
-        "sillytavern-utils-lib": "^1.0.54"
+        "sillytavern-utils-lib": "^1.0.55"
     }
 }
