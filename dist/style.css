@@ -20,9 +20,6 @@
   font-size: var(--mainFontSize);
   /* Context Sending Options */
   /* Message inclusion options */
-  /* Styling for the Character/World Info selector containers */
-  /* Style for the "X items selected" display */
-  /* Max Context / Tokens */
   /* Character Field Actions Styling */
   /* Output Format */
   /* Main Prompt Area */
@@ -141,32 +138,6 @@
 #charCreatorPopup .message-options .message-input {
   width: 60px;
 }
-#charCreatorPopup #charCreator_charIncludeContainer,
-#charCreatorPopup #charCreator_worldInfoIncludeContainer {
-  padding-left: 20px;
-  margin-left: 5px;
-  margin-top: 8px;
-}
-#charCreatorPopup .selector-summary {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: var(--SmartThemeFormBgColor);
-  padding: 8px 12px;
-  border-radius: 5px;
-  border: 1px solid var(--SmartThemeBorderColor);
-  font-size: 0.9em;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-#charCreatorPopup .selector-summary i {
-  margin-left: 10px;
-}
-#charCreatorPopup #charCreator_maxTokens_container {
-  display: none;
-  /* Initially hidden */
-  margin-top: 10px;
-}
 #charCreatorPopup .character-field-actions {
   display: flex;
   gap: 15px;
@@ -237,17 +208,6 @@
 }
 #charCreatorPopup .character-field .field-container.large-field textarea {
   min-height: 120px;
-}
-#charCreatorPopup .character-field .field-container .generate-field-button, #charCreatorPopup .character-field .field-container .delete-draft-field-button, #charCreatorPopup .character-field .field-container .clear-field-button {
-  flex-shrink: 0;
-  padding: 2px 6px;
-  font-size: 0.9em;
-  height: 30px;
-  line-height: 1.5;
-  margin-bottom: 2px;
-}
-#charCreatorPopup .character-field .field-container .generate-field-button:disabled .fa-solid, #charCreatorPopup .character-field .field-container .delete-draft-field-button:disabled .fa-solid, #charCreatorPopup .character-field .field-container .clear-field-button:disabled .fa-solid {
-  animation: spin 1s linear infinite;
 }
 #charCreatorPopup .character-field .field-prompt-container {
   margin-top: 8px;
