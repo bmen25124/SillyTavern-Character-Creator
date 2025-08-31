@@ -249,6 +249,7 @@
   margin-left: auto;
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 #charCreatorPopup .tab-buttons .right-aligned .menu_button {
   width: auto;
