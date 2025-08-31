@@ -12,3 +12,4 @@ scripts/*.json
 scripts/*.js
 scripts/temp/
 __pycache__
+repomix-output.xml

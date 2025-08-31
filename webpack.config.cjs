@@ -3,7 +3,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-    entry: path.join(__dirname, 'src/index.ts'),
+    entry: path.join(__dirname, 'src/index.tsx'),
     output: {
         path: path.join(__dirname, 'dist/'),
         filename: 'index.js',
@@ -28,7 +28,9 @@ module.exports = {
     resolve: {
         extensions: ['.ts', '.tsx', '.js', '.jsx'],
         extensionAlias: {
-            '.js': ['.ts', '.js']
+            '.js': ['.ts', '.js', '.tsx', '.jsx'],
+            '.cjs': ['.cts', '.cjs', '.tsx', '.jsx'],
+            '.mjs': ['.mts', '.mjs', '.tsx', '.jsx'],
         }
     },
     devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
@@ -44,6 +46,7 @@ module.exports = {
                             cacheDirectory: true,
                             presets: [
                                 '@babel/preset-env',
+                                ['@babel/preset-react', { runtime: 'automatic' }],
                                 '@babel/preset-typescript',
                             ],
                         },
