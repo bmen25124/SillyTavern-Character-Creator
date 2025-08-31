@@ -892,6 +892,7 @@ export const MainPopup: FC = () => {
                     value={data.value}
                     prompt={data.prompt}
                     isDraft
+                    rows={5}
                     isGenerating={isGenerating.includes(fieldId)}
                     onValueChange={(id, v) => handleFieldChange(id, v, 'value', true)}
                     onPromptChange={(id, p) => handleFieldChange(id, p, 'prompt', true)}
