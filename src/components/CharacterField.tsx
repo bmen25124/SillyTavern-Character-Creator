@@ -6,7 +6,9 @@ export interface CharacterFieldProps {
   label: string;
   value: string;
   prompt: string;
-  isLarge?: boolean;
+  large?: boolean;
+  rows?: number;
+  promptEnabled?: boolean;
   isDraft?: boolean;
   isGenerating?: boolean;
   onValueChange: (fieldId: string, newValue: string) => void;
@@ -23,7 +25,9 @@ export const CharacterField: FC<CharacterFieldProps> = ({
   label,
   value,
   prompt,
-  isLarge = false,
+  large = false,
+  rows = 3,
+  promptEnabled = true,
   isDraft = false,
   isGenerating = false,
   onValueChange,
@@ -37,8 +41,8 @@ export const CharacterField: FC<CharacterFieldProps> = ({
   return (
     <div className={`character-field ${isDraft ? 'draft-field' : 'core-field'}`}>
       <label>{label}</label>
-      <div className={`field-container ${isLarge ? 'large-field' : ''}`}>
-        <STTextarea value={value} onChange={(e) => onValueChange(fieldId, e.target.value)} rows={isLarge ? 6 : 3} />
+      <div className={`field-container ${large ? 'large-field' : ''}`}>
+        <STTextarea value={value} onChange={(e) => onValueChange(fieldId, e.target.value)} rows={rows} />
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <STButton onClick={() => onGenerate(fieldId)} disabled={isGenerating} title="Generate field content">
             {isGenerating ? (
@@ -65,14 +69,16 @@ export const CharacterField: FC<CharacterFieldProps> = ({
           )}
         </div>
       </div>
-      <div className="field-prompt-container">
-        <STTextarea
-          value={prompt}
-          onChange={(e) => onPromptChange(fieldId, e.target.value)}
-          placeholder={`Enter additional prompt for ${label.toLowerCase()}...`}
-          rows={3}
-        />
-      </div>
+      {promptEnabled && (
+        <div className="field-prompt-container">
+          <STTextarea
+            value={prompt}
+            onChange={(e) => onPromptChange(fieldId, e.target.value)}
+            placeholder={`Enter additional prompt for ${label.toLowerCase()}...`}
+            rows={3}
+          />
+        </div>
+      )}
     </div>
   );
 };

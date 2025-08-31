@@ -50,6 +50,15 @@ const createDefaultSession = (): Session => ({
   lastLoadedCharacterId: '',
 });
 
+const fieldConfigs = {
+  name: { label: CHARACTER_LABELS.name, rows: 1, large: false, promptEnabled: false },
+  description: { label: CHARACTER_LABELS.description, rows: 5, large: true, promptEnabled: true },
+  personality: { label: CHARACTER_LABELS.personality, rows: 4, large: true, promptEnabled: true },
+  scenario: { label: CHARACTER_LABELS.scenario, rows: 3, large: true, promptEnabled: true },
+  first_mes: { label: CHARACTER_LABELS.first_mes, rows: 3, large: true, promptEnabled: true },
+  mes_example: { label: CHARACTER_LABELS.mes_example, rows: 6, large: true, promptEnabled: true },
+};
+
 export const MainPopup: FC = () => {
   // --- State Management ---
   const forceUpdate = useForceUpdate();
@@ -839,23 +848,29 @@ export const MainPopup: FC = () => {
             {activeTab === 'core' && (
               <div className="card tab-content active">
                 <h3>Core Character Fields</h3>
-                {CHARACTER_FIELDS.map((fieldId) => (
-                  <CharacterField
-                    key={fieldId}
-                    fieldId={fieldId}
-                    label={CHARACTER_LABELS[fieldId]}
-                    value={session.fields[fieldId]?.value ?? ''}
-                    prompt={session.fields[fieldId]?.prompt ?? ''}
-                    isLarge={['description', 'personality', 'scenario', 'mes_example'].includes(fieldId)}
-                    isGenerating={isGenerating.includes(fieldId)}
-                    onValueChange={(id, v) => handleFieldChange(id, v, 'value', false)}
-                    onPromptChange={(id, p) => handleFieldChange(id, p, 'prompt', false)}
-                    onGenerate={handleGenerate}
-                    onContinue={(id) => handleGenerate(id, session.fields[id].value)}
-                    onClear={(id) => handleClearField(id, false)}
-                    onCompare={handleCompare}
-                  />
-                ))}
+                {CHARACTER_FIELDS.map((fieldId) => {
+                  const config = fieldConfigs[fieldId as keyof typeof fieldConfigs];
+                  if (!config) return null;
+                  return (
+                    <CharacterField
+                      key={fieldId}
+                      fieldId={fieldId}
+                      label={config.label}
+                      value={session.fields[fieldId]?.value ?? ''}
+                      prompt={session.fields[fieldId]?.prompt ?? ''}
+                      large={config.large}
+                      rows={config.rows}
+                      promptEnabled={config.promptEnabled}
+                      isGenerating={isGenerating.includes(fieldId)}
+                      onValueChange={(id, v) => handleFieldChange(id, v, 'value', false)}
+                      onPromptChange={(id, p) => handleFieldChange(id, p, 'prompt', false)}
+                      onGenerate={handleGenerate}
+                      onContinue={(id) => handleGenerate(id, session.fields[id].value)}
+                      onClear={(id) => handleClearField(id, false)}
+                      onCompare={handleCompare}
+                    />
+                  );
+                })}
                 <AlternateGreetings
                   greetings={greetings}
                   onGreetingsChange={handleGreetingsChange}
