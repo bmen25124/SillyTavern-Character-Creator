@@ -55,7 +55,7 @@ export const MainPopup: FC = () => {
   const forceUpdate = useForceUpdate();
   const settings = settingsManager.getSettings();
   const [session, setSession] = useState<Session>(createDefaultSession());
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isGenerating, setIsGenerating] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'core' | 'draft'>('core');
 
@@ -147,7 +147,6 @@ export const MainPopup: FC = () => {
   const handleClearField = useCallback(
     (fieldId: string, isDraft: boolean) => {
       handleFieldChange(fieldId, '', 'value', isDraft);
-      handleFieldChange(fieldId, '', 'prompt', isDraft);
     },
     [handleFieldChange],
   );
@@ -186,7 +185,7 @@ export const MainPopup: FC = () => {
   const handleGenerate = useCallback(
     async (targetField: string, continueFrom?: string) => {
       if (!settings.profileId) return st_echo('warning', 'Please select a connection profile.');
-      setIsGenerating(true);
+      setIsGenerating((prev) => [...prev, targetField]);
       try {
         const profile = globalContext.extensionSettings.connectionManager?.profiles?.find(
           (p) => p.id === settings.profileId,
@@ -286,7 +285,7 @@ export const MainPopup: FC = () => {
         console.error(e);
         st_echo('error', e.message || String(e));
       } finally {
-        setIsGenerating(false);
+        setIsGenerating((prev) => prev.filter((id) => id !== targetField));
       }
     },
     [session, settings, allCharacters, greetings, handleFieldChange, handleGreetingsChange],
@@ -848,7 +847,7 @@ export const MainPopup: FC = () => {
                     value={session.fields[fieldId]?.value ?? ''}
                     prompt={session.fields[fieldId]?.prompt ?? ''}
                     isLarge={['description', 'personality', 'scenario', 'mes_example'].includes(fieldId)}
-                    isGenerating={isGenerating}
+                    isGenerating={isGenerating.includes(fieldId)}
                     onValueChange={(id, v) => handleFieldChange(id, v, 'value', false)}
                     onPromptChange={(id, p) => handleFieldChange(id, p, 'prompt', false)}
                     onGenerate={handleGenerate}
@@ -860,7 +859,7 @@ export const MainPopup: FC = () => {
                 <AlternateGreetings
                   greetings={greetings}
                   onGreetingsChange={handleGreetingsChange}
-                  isGenerating={isGenerating}
+                  isGenerating={isGenerating.some((id) => id.startsWith('alternate_greetings_'))}
                   onGenerate={(i) => handleGenerate(`alternate_greetings_${i + 1}`)}
                   onContinue={(i) => handleGenerate(`alternate_greetings_${i + 1}`, greetings[i].value)}
                   onCompare={handleCompare}
@@ -878,7 +877,7 @@ export const MainPopup: FC = () => {
                     value={data.value}
                     prompt={data.prompt}
                     isDraft
-                    isGenerating={isGenerating}
+                    isGenerating={isGenerating.includes(fieldId)}
                     onValueChange={(id, v) => handleFieldChange(id, v, 'value', true)}
                     onPromptChange={(id, p) => handleFieldChange(id, p, 'prompt', true)}
                     onGenerate={handleGenerate}
