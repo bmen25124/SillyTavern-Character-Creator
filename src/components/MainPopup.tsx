@@ -409,36 +409,6 @@ export const MainPopup: FC = () => {
     }
   };
 
-  const handleSaveAsWorldInfo = async (worldName: string) => {
-    if (!session.fields.name.value) return st_echo('warning', 'Character name is required to create a WI entry.');
-    const charTpl = {
-      name: session.fields.name.value,
-      description: session.fields.description.value,
-      personality: session.fields.personality.value,
-      scenario: session.fields.scenario.value,
-      first_mes: session.fields.first_mes.value,
-      mes_example: session.fields.mes_example.value,
-      alternate_greetings: getGreetingsArray(),
-    };
-    const content = Handlebars.compile(settings.prompts.worldInfoCharDefinition.content, { noEscape: true })({
-      character: charTpl,
-    });
-    const entry: WIEntry = {
-      uid: -1,
-      key: [session.fields.name.value],
-      content,
-      comment: session.fields.name.value,
-      disable: false,
-      keysecondary: [],
-    };
-    try {
-      await applyWorldInfoEntry({ entry, selectedWorldName: worldName, operation: 'add' });
-      st_echo('success', 'World Info entry added.');
-    } catch (e: any) {
-      st_echo('error', `Failed to add WI entry: ${e.message}`);
-    }
-  };
-
   const handleExportDrafts = () => {
     const data = JSON.stringify({ draftFields: session.draftFields, version: VERSION }, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
@@ -490,6 +460,10 @@ export const MainPopup: FC = () => {
   const promptPresetItems = useMemo(
     (): PresetItem[] => Object.keys(settings.promptPresets).map((k) => ({ value: k, label: k })),
     [settings.promptPresets],
+  );
+  const mainContextPresetItems = useMemo(
+    (): PresetItem[] => Object.keys(settings.mainContextTemplatePresets).map((k) => ({ value: k, label: k })),
+    [settings.mainContextTemplatePresets],
   );
   const wiDDItems = useMemo((): DropdownItem[] => allWorldNames.map((n) => ({ value: n, label: n })), [allWorldNames]);
   const charDDItems = useMemo(
@@ -687,6 +661,16 @@ export const MainPopup: FC = () => {
           </div>
           <div className="card">
             <h3>Generation Options</h3>
+            <label title="You can edit in extension settings">
+              Main Context Template
+              <STPresetSelect
+                onItemsChange={() => {}}
+                label="Main Context Template"
+                items={mainContextPresetItems}
+                value={settings.mainContextTemplatePreset}
+                onChange={(v) => updateSetting('mainContextTemplatePreset', v ?? 'default')}
+              />
+            </label>
             <label>
               Max Context Tokens
               <select
