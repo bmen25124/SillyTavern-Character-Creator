@@ -261,6 +261,30 @@ export const MainPopup: FC = () => {
             }),
         );
 
+        const promptSettings = structuredClone(settings.prompts);
+        if (!settings.contextToSend.stDescription) {
+          // @ts-ignore
+          delete promptSettings.stDescription;
+        }
+        if (!settings.contextToSend.charCard || session.selectedCharacterIndexes.length === 0) {
+          // @ts-ignore
+          delete promptSettings.charDefinitions;
+        }
+        if (!settings.contextToSend.worldInfo || session.selectedWorldNames.length === 0) {
+          // @ts-ignore
+          delete promptSettings.lorebookDefinitions;
+        }
+        if (!settings.contextToSend.existingFields) {
+          // @ts-ignore
+          delete promptSettings.existingFieldDefinitions;
+        }
+        if (!settings.contextToSend.persona) {
+          // @ts-ignore
+          delete promptSettings.personaDescription;
+        }
+        // @ts-ignore - since this is only for saving as world info entry
+        delete promptSettings.worldInfoCharDefinition;
+
         const generatedContent = await runCharacterFieldGeneration({
           profileId: settings.profileId,
           userPrompt: settings.promptPresets[settings.promptPreset].content,
@@ -269,7 +293,7 @@ export const MainPopup: FC = () => {
           session,
           allCharacters,
           entriesGroupByWorldName,
-          promptSettings: settings.prompts,
+          promptSettings,
           formatDescription: { content: settings.prompts[`${settings.outputFormat}Format`].content },
           mainContextList: settings.mainContextTemplatePresets[settings.mainContextTemplatePreset].prompts.filter(
             (p) => p.enabled,
