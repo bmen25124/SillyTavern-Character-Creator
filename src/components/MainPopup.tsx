@@ -8,7 +8,7 @@ import {
   Popup,
   DropdownItem,
   PresetItem,
-} from 'sillytavern-utils-lib/components';
+} from 'sillytavern-utils-lib/components/react';
 import { applyWorldInfoEntry, createCharacter, saveCharacter, BuildPromptOptions } from 'sillytavern-utils-lib';
 import { selected_group, st_echo, this_chid, world_names } from 'sillytavern-utils-lib/config';
 import { POPUP_TYPE } from 'sillytavern-utils-lib/types/popup';
@@ -22,6 +22,8 @@ import { useForceUpdate } from '../hooks/useForceUpdate.js';
 import { CharacterField } from './CharacterField.js';
 import { AlternateGreetings, Greeting } from './AlternateGreetings.js';
 import { CompareFieldPopup } from './CompareFieldPopup.js';
+import { CharacterState, ReviseSessionType } from '../revise-types.js';
+import { ReviseSessionManager } from './ReviseSessionManager.js';
 
 if (!Handlebars.helpers['join']) {
   Handlebars.registerHelper('join', function (array: any, separator: any) {
@@ -29,6 +31,24 @@ if (!Handlebars.helpers['join']) {
       return array.join(typeof separator === 'string' ? separator : ', ');
     }
     return '';
+  });
+}
+
+if (!Handlebars.helpers['is_not_empty']) {
+  Handlebars.registerHelper('is_not_empty', function (this: any, value, options) {
+    if (!value) {
+      return options.inverse(this);
+    }
+    if (Array.isArray(value)) {
+      return value.length > 0 ? options.fn(this) : options.inverse(this);
+    }
+    if (typeof value === 'object' && Object.keys(value).length > 0) {
+      return options.fn(this);
+    }
+    if (typeof value !== 'object' && !Array.isArray(value)) {
+      return options.fn(this);
+    }
+    return options.inverse(this);
   });
 }
 
@@ -72,6 +92,13 @@ export const MainPopup: FC = () => {
   const [allWorldNames, setAllWorldNames] = useState<string[]>([]);
   const [loadedCharacter, setLoadedCharacter] = useState<Character | null>(null);
   const [compareData, setCompareData] = useState<{ original: string; current: string; fieldName: string } | null>(null);
+
+  // --- Revise Session State ---
+  const [reviseSessionManagerOpen, setReviseSessionManagerOpen] = useState(false);
+  const [reviseSessionTarget, setReviseSessionTarget] = useState<{
+    type: ReviseSessionType;
+    fieldId?: string;
+  } | null>(null);
 
   // --- Effects for Data Loading and Session Management ---
   useEffect(() => {
@@ -189,6 +216,25 @@ export const MainPopup: FC = () => {
     }));
     setActiveTab('draft');
   }, [session.draftFields]);
+
+  // --- Revise Session Handlers ---
+  const handleOpenReviseSessions = (fieldId: string) => {
+    setReviseSessionTarget({ type: 'field', fieldId });
+    setReviseSessionManagerOpen(true);
+  };
+  const handleOpenGlobalReviseSessions = () => {
+    setReviseSessionTarget({ type: 'global' });
+    setReviseSessionManagerOpen(true);
+  };
+  const handleApplyReviseSessionChanges = (newState: CharacterState) => {
+    setSession((prev) => ({
+      ...prev,
+      fields: { ...prev.fields, ...newState.fields },
+      draftFields: { ...prev.draftFields, ...newState.draftFields },
+    }));
+    st_echo('success', 'Changes from revise session applied.');
+    setReviseSessionManagerOpen(false);
+  };
 
   // --- Core Generation Logic ---
   const handleGenerate = useCallback(
@@ -489,11 +535,6 @@ export const MainPopup: FC = () => {
     (): PresetItem[] => Object.keys(settings.mainContextTemplatePresets).map((k) => ({ value: k, label: k })),
     [settings.mainContextTemplatePresets],
   );
-  const wiDDItems = useMemo((): DropdownItem[] => allWorldNames.map((n) => ({ value: n, label: n })), [allWorldNames]);
-  const charDDItems = useMemo(
-    (): DropdownItem[] => allCharacters.map((c, i) => ({ value: String(i), label: c.name })),
-    [allCharacters],
-  );
 
   if (isLoading) return <div>Loading...</div>;
 
@@ -774,6 +815,12 @@ export const MainPopup: FC = () => {
         {/* Right Column */}
         <div className="wide-column">
           <div className="character-field-actions">
+            <STButton
+              onClick={handleOpenGlobalReviseSessions}
+              title="Open global revision sessions to edit multiple fields at once"
+            >
+              <i className="fa-solid fa-comments"></i>
+            </STButton>
             <STButton onClick={handleSaveAsNew}>Save as New</STButton>
             <STButton onClick={handleOverride} disabled={!loadedCharacter}>
               Override Char
@@ -876,6 +923,7 @@ export const MainPopup: FC = () => {
                       onContinue={(id) => handleGenerate(id, session.fields[id].value)}
                       onClear={(id) => handleClearField(id, false)}
                       onCompare={handleCompare}
+                      onOpenReviseSessions={handleOpenReviseSessions}
                     />
                   );
                 })}
@@ -928,6 +976,27 @@ export const MainPopup: FC = () => {
           }
           onComplete={() => setCompareData(null)}
           options={{ wide: true }}
+        />
+      )}
+
+      {reviseSessionManagerOpen && reviseSessionTarget && (
+        <Popup
+          type={POPUP_TYPE.DISPLAY}
+          content={
+            <ReviseSessionManager
+              target={reviseSessionTarget}
+              onClose={() => setReviseSessionManagerOpen(false)}
+              onApply={handleApplyReviseSessionChanges}
+              initialState={{ fields: session.fields, draftFields: session.draftFields }}
+              contextToSend={settings.contextToSend}
+              sessionForContext={{
+                selectedCharacterIndexes: session.selectedCharacterIndexes,
+                selectedWorldNames: session.selectedWorldNames,
+              }}
+            />
+          }
+          onComplete={() => setReviseSessionManagerOpen(false)}
+          options={{ wide: true, large: true }}
         />
       )}
     </div>

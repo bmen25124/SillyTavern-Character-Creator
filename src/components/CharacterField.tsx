@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { STButton, STTextarea } from 'sillytavern-utils-lib/components';
+import { STButton, STTextarea } from 'sillytavern-utils-lib/components/react';
 
 export interface CharacterFieldProps {
   fieldId: string;
@@ -18,6 +18,7 @@ export interface CharacterFieldProps {
   onClear: (fieldId: string) => void;
   onCompare?: (fieldId: string) => void;
   onDelete?: (fieldId: string) => void;
+  onOpenReviseSessions?: (fieldId: string) => void;
 }
 
 export const CharacterField: FC<CharacterFieldProps> = ({
@@ -37,6 +38,7 @@ export const CharacterField: FC<CharacterFieldProps> = ({
   onClear,
   onCompare,
   onDelete,
+  onOpenReviseSessions,
 }) => {
   return (
     <div className={`character-field ${isDraft ? 'draft-field' : 'core-field'}`}>
@@ -57,6 +59,12 @@ export const CharacterField: FC<CharacterFieldProps> = ({
           <STButton onClick={() => onClear(fieldId)} title="Clear field content">
             <i className="fa-solid fa-eraser"></i>
           </STButton>
+          {onOpenReviseSessions &&
+            !isDraft && ( // Disabling for draft fields initially for simplicity
+              <STButton onClick={() => onOpenReviseSessions(fieldId)} title="Revise with AI chat">
+                <i className="fa-solid fa-comments"></i>
+              </STButton>
+            )}
           {!isDraft && onCompare && (
             <STButton onClick={() => onCompare(fieldId)} title="Compare with loaded character">
               <i className="fa-solid fa-code-compare"></i>

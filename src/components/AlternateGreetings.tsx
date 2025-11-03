@@ -1,5 +1,5 @@
 import { FC, useState, useEffect } from 'react';
-import { STButton, STTextarea } from 'sillytavern-utils-lib/components';
+import { STButton, STTextarea } from 'sillytavern-utils-lib/components/react';
 
 const globalContext = SillyTavern.getContext();
 

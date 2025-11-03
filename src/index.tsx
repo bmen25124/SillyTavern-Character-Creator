@@ -4,6 +4,7 @@ import { extensionName, initializeSettings } from './settings.js';
 import { CharacterCreatorSettings } from './components/Settings.js';
 import { st_echo } from 'sillytavern-utils-lib/config';
 import { PopupManager } from './components/PopupManager.js';
+import './styles/main.scss';
 
 const globalContext = SillyTavern.getContext();
 

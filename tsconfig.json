@@ -4,21 +4,22 @@
         "lib": [
             "dom",
             "dom.iterable",
-            "es2021"
+            "esnext"
         ],
         "allowSyntheticDefaultImports": true,
         "forceConsistentCasingInFileNames": true,
         "noFallthroughCasesInSwitch": true,
-        "module": "NodeNext",
-        "moduleResolution": "nodenext",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
         "strict": true,
         "isolatedModules": true,
-        "noEmit": false,
+        "noEmit": true,
         "esModuleInterop": true,
+        "noUnusedLocals": true,
         "skipLibCheck": true,
         "jsx": "react-jsx",
-        "outDir": "./dist",
-        "rootDir": "./src"
+        "allowImportingTsExtensions": true,
+        "resolveJsonModule": true
     },
     "include": [
         "src/**/*",
@@ -27,5 +28,10 @@
     "exclude": [
         "node_modules",
         "dist"
+    ],
+    "references": [
+        {
+            "path": "./tsconfig.node.json"
+        }
     ]
 }

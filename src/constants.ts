@@ -97,7 +97,8 @@ Teaches the AI the character's **speech patterns**, **formatting preferences**, 
 
 =======`;
 
-export const DEFAULT_CHAR_CARD_DEFINITION_TEMPLATE = `## Selected Characters for Context
+export const DEFAULT_CHAR_CARD_DEFINITION_TEMPLATE = `{{#if characters}}
+## Selected Characters for Context
 {{#each characters}}
 ### {{this.name}}
 {{#if this.description}}
@@ -128,7 +129,8 @@ export const DEFAULT_CHAR_CARD_DEFINITION_TEMPLATE = `## Selected Characters for
 {{/each}}
 {{/if}}
 
-{{/each}}`;
+{{/each}}
+{{/if}}`;
 
 export const DEFAULT_XML_FORMAT_DESC = `=== RESPONSE FORMAT INSTRUCTIONS ===
 You MUST provide your response wrapped ONLY in a single <response> XML tag.
@@ -164,7 +166,8 @@ Generated content for the field goes here.
 
 export const DEFAULT_OUTPUT_FORMAT_INSTRUCTIONS = '{{activeFormatInstructions}}';
 
-export const DEFAULT_LOREBOOK_DEFINITION = `## Selected Lorebooks for Context
+export const DEFAULT_LOREBOOK_DEFINITION = `{{#is_not_empty lorebooks}}
+## Selected Lorebooks for Context
 {{#each lorebooks}}
 ### {{@key}}
   {{#each this as |entry|}}
@@ -175,7 +178,8 @@ Content: {{#if entry.content}}{{entry.content}}{{else}}*No content*{{/if}}
   {{/each}}
 
 
-{{/each}}`;
+{{/each}}
+{{/is_not_empty}}`;
 
 export const DEFAULT_WORLD_INFO_CHARACTER_DEFINITION = `### {{character.name}}
 - **Description:** {{#if character.description}}{{character.description}}{{else}}*Not provided*{{/if}}
@@ -191,27 +195,29 @@ export const DEFAULT_WORLD_INFO_CHARACTER_DEFINITION = `### {{character.name}}
   {{/each}}
   {{else}}*Not provided*{{/if}}`;
 
-export const DEFAULT_EXISTING_FIELDS_DEFINITION = `=== CURRENT CHARACTER FIELD VALUES ===
-{{#if fields.core}}
+export const DEFAULT_EXISTING_FIELDS_DEFINITION = `{{#is_not_empty fields}}
+=== CURRENT CHARACTER FIELD VALUES ===
+{{#is_not_empty fields.core}}
 **Core Fields:**
 {{#each fields.core as |value key|}}
 - **{{key}}:** {{#if value}}{{value}}{{else}}*Not provided*{{/if}}
 {{/each}}
-{{/if}}
+{{/is_not_empty}}
 
-{{#if fields.alternate_greetings}}
+{{#is_not_empty fields.alternate_greetings}}
 **Alternate Greetings:**
 {{#each fields.alternate_greetings as |value key|}}
 - **{{key}}:** {{#if value}}{{value}}{{else}}*Not provided*{{/if}}
 {{/each}}
-{{/if}}
+{{/is_not_empty}}
 
-{{#if fields.draft}}
+{{#is_not_empty fields.draft}}
 **Draft Fields:**
 {{#each fields.draft as |value key|}}
 - **{{key}}:** {{#if value}}{{value}}{{else}}*Not provided*{{/if}}
 {{/each}}
-{{/if}}`;
+{{/is_not_empty}}
+{{/is_not_empty}}`;
 
 export const DEFAULT_PERSONA_DESCRIPTION = `## User's Persona Description
 name: {{user}}
@@ -226,3 +232,44 @@ Follow these user instructions: {{userInstructions}}
 
 Field-specific instructions: {{fieldSpecificInstructions}}
 {{/if}}`;
+
+export const DEFAULT_REVISE_JSON_PROMPT = `You are a highly specialized AI assistant. Your SOLE purpose is to generate a single, valid JSON object that strictly adheres to the provided JSON schema.
+
+**CRITICAL INSTRUCTIONS:**
+1.  You MUST wrap the entire JSON object in a markdown code block (\`\`\`json\\n...\\n\`\`\`).
+2.  Your response MUST NOT contain any explanatory text, comments, or any other content outside of this single code block.
+3.  The JSON object inside the code block MUST be valid and conform to the schema.
+
+**JSON SCHEMA TO FOLLOW:**
+\`\`\`json
+{{schema}}
+\`\`\`
+
+**EXAMPLE OF A PERFECT RESPONSE:**
+\`\`\`json
+{{example_response}}
+\`\`\``;
+
+export const DEFAULT_REVISE_XML_PROMPT = `You are a highly specialized AI assistant. Your SOLE purpose is to generate a single, valid XML structure that strictly adheres to the provided example.
+
+**CRITICAL INSTRUCTIONS:**
+1.  You MUST wrap the entire XML object in a markdown code block (\`\`\`xml\\n...\\n\`\`\`).
+2.  Your response MUST NOT contain any explanatory text, comments, or any other content outside of this single code block.
+3.  The XML object inside the code block MUST be valid.
+
+**JSON SCHEMA TO FOLLOW:**
+\`\`\`json
+{{schema}}
+\`\`\`
+
+**EXAMPLE OF A PERFECT RESPONSE:**
+\`\`\`json
+{{example_response}}
+\`\`\``;
+
+export const DEFAULT_REVISE_TASK_DESCRIPTION = `You are an expert character writer assisting a user. Your task is to respond with the modified character data in the required structured format.
+Your justification should be friendly and conversational. Be direct and focus on the changes you've made. Vary your responses and do not start every message the same way. Do not repeat the user's request back to them.
+
+For this session, we are focusing on: {{#if isFieldSession}}the "{{targetLabel}}" field.{{else}}the entire character card.{{/if}}
+
+Initial character state is provided in the context. Read the user's request, and provide a response that incorporates their changes.`;

@@ -6,6 +6,6 @@
     "js": "dist/index.js",
     "css": "dist/style.css",
     "author": "bmen25124",
-    "version": "0.2.2",
+    "version": "0.3.0",
     "homePage": "https://github.com/bmen25124/SillyTavern-Character-Creator"
 }

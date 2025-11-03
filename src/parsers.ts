@@ -1,67 +1,86 @@
-import { XMLParser } from 'fast-xml-parser';
+import { XMLParser, XMLValidator } from 'fast-xml-parser';
 
 const xmlParser = new XMLParser({
-  ignoreAttributes: false, // Keep attributes if needed in the future
+  ignoreAttributes: true,
+  textNodeName: '#text',
+  trimValues: true,
   allowBooleanAttributes: true,
 });
 
-interface XmlParseOptions {
-  previousContent?: string;
+export interface ParseOptions {
+  schema?: any;
 }
 
-/**
- * Parses the AI response based on the expected format.
- * @param content The raw response string from the AI.
- * @param format The expected format ('xml', 'json', 'none').
- * @returns The extracted content string.
- * @throws Error if parsing fails or the format is invalid.
- */
-export function parseResponse(content: string, format: 'xml' | 'json' | 'none', options: XmlParseOptions = {}): string {
+function ensureArray(data: any, schema: any) {
+  if (!schema || !data || !schema.properties) {
+    return;
+  }
+
+  for (const key in schema.properties) {
+    if (!data.hasOwnProperty(key)) continue;
+
+    const propSchema = schema.properties[key];
+    let propData = data[key];
+
+    // Ensure the property is an array if the schema requires it and it's not one already.
+    if (propSchema.type === 'array' && !Array.isArray(propData)) {
+      propData = [propData];
+      data[key] = propData;
+    }
+
+    // Recurse into objects or arrays of objects.
+    if (propSchema.type === 'object' && typeof propData === 'object' && propData !== null) {
+      ensureArray(propData, propSchema);
+    } else if (propSchema.type === 'array' && propSchema.items?.type === 'object' && Array.isArray(propData)) {
+      propData.forEach((item) => ensureArray(item, propSchema.items));
+    }
+
+    // Coerce types to match schema, for both single properties and items within an array.
+    if (propSchema.type === 'string' && typeof propData !== 'string') {
+      data[key] = String(propData);
+    } else if (propSchema.type === 'array' && propSchema.items?.type === 'string' && Array.isArray(propData)) {
+      data[key] = propData.map(String);
+    }
+  }
+}
+
+export function parseResponse(
+  content: string,
+  format: 'xml' | 'json' | 'none',
+  options: ParseOptions = {},
+): object | string {
   // Extract content from inside code blocks, handling language identifiers
-  const codeBlockRegex = /```(?:\w+\n|\n)([\s\S]*?)```/; // Use * to match zero or more characters
+  const codeBlockRegex = /```(?:\w+\n|\n)?([\s\S]*?)```/;
   const codeBlockMatch = content.match(codeBlockRegex);
   let cleanedContent = codeBlockMatch ? codeBlockMatch[1].trim() : content.trim();
-
-  if (options.previousContent) {
-    cleanedContent = options.previousContent + cleanedContent.trimEnd();
-  }
 
   try {
     switch (format) {
       case 'xml':
-        const parsedXml = xmlParser.parse(cleanedContent);
-        // Check multiple possible structures due to AI variability
-        const responseValueXml = parsedXml?.response ?? parsedXml?.root?.response ?? parsedXml?.data?.response;
-        if (typeof responseValueXml === 'string') {
-          return responseValueXml.trim();
-        } else if (responseValueXml && typeof responseValueXml['#text'] === 'string') {
-          // Handle cases where parser puts content in #text
-          return responseValueXml['#text'].trim();
-        } else if (parsedXml && Object.keys(parsedXml).length > 0) {
-          // Handle case with multiple keys by taking first value
-          const firstValue = Object.values(parsedXml)[0];
-          if (typeof firstValue === 'string') {
-            return firstValue.trim();
-            // @ts-ignore
-          } else if (typeof firstValue?.['#text'] === 'string') {
-            // @ts-ignore
-            return firstValue['#text'].trim();
+        // For 'continue' functionality, the XML might be incomplete. We parse what we can.
+        // The validator is too strict for partial content, so we bypass it in those cases.
+        // A simple heuristic: if it doesn't end with the closing root tag, it's likely partial.
+        if (options.schema) {
+          const validationResult = XMLValidator.validate(cleanedContent);
+          if (validationResult !== true) {
+            throw new Error(`Model response is not valid XML: ${validationResult.err.msg}`);
           }
         }
-        throw new Error('Invalid XML format: <response> tag content not found or not a string.');
+        let parsedXml = xmlParser.parse(cleanedContent);
+        if (parsedXml.root) {
+          parsedXml = parsedXml.root;
+        } else if (parsedXml.response) {
+          // Handle simple <response> tag for single-field generation
+          return parsedXml.response;
+        }
+        if (options.schema) {
+          ensureArray(parsedXml, options.schema);
+        }
+        return parsedXml;
 
       case 'json':
         const parsedJson = JSON.parse(cleanedContent);
-        if (parsedJson && typeof parsedJson.response === 'string') {
-          return parsedJson.response.trim();
-        } else if (parsedJson?.response && Object.keys(parsedJson.response).length > 0) {
-          // Handle case with multiple keys by taking first value
-          return String(Object.values(parsedJson.response)[0]).trim();
-        } else if (parsedJson && Object.keys(parsedJson).length > 0) {
-          // Handle case with multiple keys by taking first value
-          return String(Object.values(parsedJson)[0]).trim();
-        }
-        throw new Error('Invalid JSON format: "response" key not found or its value is not a string.');
+        return parsedJson;
 
       case 'none':
         return cleanedContent;
@@ -70,16 +89,29 @@ export function parseResponse(content: string, format: 'xml' | 'json' | 'none', 
         throw new Error(`Unsupported format specified: ${format}`);
     }
   } catch (error: any) {
+    // If parsing fails, it might be because the AI is streaming an incomplete structure.
+    // For single-field generation, we can often just return the cleaned text.
+    if (format !== 'none' && !options.schema) {
+      const responseMatch = cleanedContent.match(/<response>([\s\S]*)/);
+      if (responseMatch) return responseMatch[1];
+      const jsonMatch = cleanedContent.match(/"response":\s*"([\s\S]*)/);
+      if (jsonMatch) return jsonMatch[1].replace(/"\s*}\s*$/, '');
+      return cleanedContent; // Fallback to raw cleaned content
+    }
+
     console.error(`Error parsing response in format '${format}':`, error);
     console.error('Raw content received:', content);
 
-    if (format === 'xml' && error.message.includes('Invalid XML')) {
-      throw new Error('Model response is not valid XML or does not contain the <response> tag.');
-    } else if (format === 'json' && error instanceof SyntaxError) {
-      throw new Error('Model response is not valid JSON or does not follow the {"response": "..."} structure.');
-    } else {
-      throw new Error(`Failed to parse response as ${format}: ${error.message}`);
+    if (format === 'xml') {
+      if (error.message.startsWith('Model response is not valid XML:')) {
+        throw error;
+      }
+      throw new Error(`Model response is not valid XML: ${error.message}`);
     }
+    if (format === 'json') {
+      throw new Error('Model response is not valid JSON.');
+    }
+    throw new Error(`Failed to parse response as ${format}: ${error.message}`);
   }
 }
 
@@ -93,9 +125,9 @@ export function getPrefilled(content: string, format: 'xml' | 'json' | 'none'): 
   const trimmedContent = content.trim();
   switch (format) {
     case 'xml':
-      return `<response>\n  ${trimmedContent}`;
+      return `<response>${trimmedContent}`;
     case 'json':
-      return `{\n  "response": "${trimmedContent}`;
+      return `{\n  "response": "${trimmedContent.replace(/"/g, '\\"')}`; // Basic escaping
     case 'none':
       return trimmedContent;
     default:

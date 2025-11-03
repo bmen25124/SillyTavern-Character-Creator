@@ -186,7 +186,6 @@ export async function runCharacterFieldGeneration({
         if (CHARACTER_FIELDS.includes(fieldName as CharacterFieldName)) {
           coreFields[field.label] = compiledValue;
         } else if (fieldName.startsWith('alternate_greetings_')) {
-          const index = parseInt(fieldName.split('_')[2]);
           alternateGreetingsFields[fieldName] = compiledValue;
         }
       }
@@ -196,11 +195,16 @@ export async function runCharacterFieldGeneration({
       draftFields[field.label] = Handlebars.compile(field.value, { noEscape: true })(templateData);
     });
 
-    const allFields = {
-      core: coreFields,
-      alternate_greetings: alternateGreetingsFields,
-      draft: draftFields,
-    };
+    const allFields: Record<string, any> = {};
+    if (Object.keys(coreFields).length > 0) {
+      allFields.core = coreFields;
+    }
+    if (Object.keys(alternateGreetingsFields).length > 0) {
+      allFields.alternate_greetings = alternateGreetingsFields;
+    }
+    if (Object.keys(draftFields).length > 0) {
+      allFields.draft = draftFields;
+    }
 
     templateData['fields'] = allFields;
   }
@@ -253,20 +257,32 @@ export async function runCharacterFieldGeneration({
     }
   }
 
-  // console.log("Sending messages:", JSON.stringify(messages, null, 2)); // For debugging
-
   const response = (await globalContext.ConnectionManagerRequestService.sendRequest(
     profileId,
     messages,
     maxResponseToken,
   )) as ExtractedData;
 
-  // console.log("Received raw content:", response.content); // For debugging
+  // For "continue" requests, the model only returns the new part.
+  // We must combine the start of the structure with the model's completion to parse it correctly.
+  const contentToParse = continueFrom ? getPrefilled(continueFrom, outputFormat) + response.content : response.content;
 
-  // Parse the response based on the expected format
-  const parsedContent = parseResponse(response.content, outputFormat, {
-    previousContent: continueFrom,
-  });
+  const result = parseResponse(contentToParse, outputFormat);
 
-  return parsedContent;
+  let finalContent: string;
+  if (typeof result === 'string') {
+    finalContent = result;
+  } else if (typeof result === 'object' && result !== null) {
+    // For single-field generation, extract the string from the object.
+    if ('response' in result && typeof result.response === 'string') {
+      finalContent = result.response;
+    } else {
+      const firstValue = Object.values(result)[0];
+      finalContent = firstValue ? String(firstValue) : '';
+    }
+  } else {
+    finalContent = '';
+  }
+
+  return finalContent;
 }

@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest';
 import { parseResponse } from '../parsers.js';
 
 describe('parseResponse with JSON format', () => {

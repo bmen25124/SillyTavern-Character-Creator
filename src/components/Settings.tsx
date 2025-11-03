@@ -7,7 +7,7 @@ import {
   STPresetSelect,
   STSortableList,
   STTextarea,
-} from 'sillytavern-utils-lib/components';
+} from 'sillytavern-utils-lib/components/react';
 import {
   convertToVariableName,
   DEFAULT_PROMPT_CONTENTS,
