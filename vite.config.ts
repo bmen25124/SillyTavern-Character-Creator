@@ -49,7 +49,7 @@ export default defineConfig(({ mode }) => {
         output: {
           assetFileNames: (assetInfo) => {
             // Check if the asset's source is the main stylesheet associated with our entry point.
-            if (assetInfo.source?.toString().includes('main.scss')) {
+            if (assetInfo.names.includes('index.css')) {
               return 'style.css';
             }
             // For all other assets, fall back to the default naming scheme.
