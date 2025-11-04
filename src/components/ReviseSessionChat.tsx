@@ -480,16 +480,22 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
   const handleRegenerate = useCallback(async () => {
     if (isLoading || messages.length === 0) return;
 
-    let messagesForRequest = [...messages];
-    const lastMessage = messages[messages.length - 1];
-
-    if (lastMessage.role === 'assistant') {
-      messagesForRequest = messages.slice(0, -1);
-    }
-
     const previousMessages = messages;
+    let messagesForRequest = [...messages];
 
-    sendRequest(
+    // Find the last message that is visible to the user.
+    const lastVisibleMessageIndex = messages.findLastIndex((m) => !m.isStateUpdate);
+
+    if (lastVisibleMessageIndex > -1) {
+      const lastVisibleMessage = messages[lastVisibleMessageIndex];
+
+      // If the last visible message is from the assistant, we are regenerating it.
+      // We need to remove it and any hidden state updates that came after it.
+      if (lastVisibleMessage.role === 'assistant') {
+        messagesForRequest = messages.slice(0, lastVisibleMessageIndex);
+      }
+    }
+    await sendRequest(
       messagesForRequest,
       true,
       () => setMessages(messagesForRequest),
