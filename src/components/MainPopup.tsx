@@ -469,7 +469,15 @@ export const MainPopup: FC = () => {
       scenario: session.fields.scenario.value,
       first_mes: session.fields.first_mes.value,
       mes_example: session.fields.mes_example.value,
-      data: { ...loadedCharacter.data, alternate_greetings: getGreetingsArray() },
+      data: {
+        alternate_greetings: getGreetingsArray(),
+        name: session.fields.name.value,
+        description: session.fields.description.value,
+        first_mes: session.fields.first_mes.value,
+        mes_example: session.fields.mes_example.value,
+        personality: session.fields.personality.value,
+        scenario: session.fields.scenario.value,
+      },
     };
     try {
       await saveCharacter(data, true);

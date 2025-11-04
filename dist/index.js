@@ -23986,7 +23986,15 @@ const On = SillyTavern.getContext(), Qy = "charCreator", _d = () => ({
       scenario: i.fields.scenario.value,
       first_mes: i.fields.first_mes.value,
       mes_example: i.fields.mes_example.value,
-      data: { ...d.data, alternate_greetings: J() }
+      data: {
+        alternate_greetings: J(),
+        name: i.fields.name.value,
+        description: i.fields.description.value,
+        first_mes: i.fields.first_mes.value,
+        mes_example: i.fields.mes_example.value,
+        personality: i.fields.personality.value,
+        scenario: i.fields.scenario.value
+      }
     };
     try {
       await mb(K, !0), Me("success", `Character "${K.name}" updated!`);
