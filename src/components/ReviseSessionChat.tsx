@@ -5,7 +5,7 @@ import {
   FieldSpecificResponse,
   FieldSpecificResponseSchema,
   GlobalResponse,
-  GlobalResponseSchema,
+  createGlobalResponseSchema,
   ReviseMessage,
   ReviseSession,
   REVISE_SCHEMA_NAME,
@@ -47,55 +47,72 @@ const calculateNewState = (
       newState.fields[targetFieldId].value = res.response;
     }
     // No draft field support for field-specific sessions for now.
-  } else if (sessionType === 'global') {
-    const res = response as GlobalResponse;
-    const greetings = getGreetings(newState);
+    return newState;
+  }
 
-    for (const op of res.operations) {
-      switch (op.op) {
-        case 'change':
-          // Only operate on core fields as per instructions.
-          if (newState.fields[op.field]) {
-            newState.fields[op.field].value = op.value;
-          }
-          break;
-        case 'remove':
-          // The spec for this op is to remove draft fields, which is out of scope.
-          // This case is a no-op as per instructions.
-          break;
-        case 'add_greeting':
-          greetings.push(op.value);
-          break;
-        case 'remove_greeting':
-          // The AI provides a 1-based index.
-          if (op.index > 0 && op.index <= greetings.length) {
-            greetings.splice(op.index - 1, 1);
-          }
-          break;
-        case 'change_greeting':
-          // The AI provides a 1-based index.
-          if (op.index > 0 && op.index <= greetings.length) {
-            greetings[op.index - 1] = op.value;
-          }
-          break;
+  if (sessionType === 'global') {
+    const res = response as GlobalResponse;
+    let currentGreetings = getGreetings(newState);
+    let greetingsModified = false;
+
+    if (res.fields_to_change?.length) {
+      for (const change of res.fields_to_change) {
+        if (newState.fields[change.field]) {
+          // Handles core and greeting fields
+          newState.fields[change.field].value = change.value;
+        } else if (newState.draftFields[change.field]) {
+          // Handles draft fields
+          newState.draftFields[change.field].value = change.value;
+        }
       }
     }
 
-    // After all operations, rebuild the greeting fields in the state.
-    Object.keys(newState.fields).forEach((key) => {
-      if (key.startsWith('alternate_greetings_')) {
-        delete newState.fields[key];
+    if (res.draft_fields_to_remove?.length) {
+      for (const fieldId of res.draft_fields_to_remove) {
+        if (newState.draftFields[fieldId]) {
+          delete newState.draftFields[fieldId];
+        }
       }
-    });
+    }
 
-    greetings.forEach((greeting, index) => {
-      const fieldName = `alternate_greetings_${index + 1}`;
-      newState.fields[fieldName] = {
-        value: greeting,
-        prompt: '', // Prompts are not managed in revise sessions.
-        label: `Alternate Greeting ${index + 1}`,
-      };
-    });
+    if (res.greetings_to_change?.length) {
+      greetingsModified = true;
+      for (const change of res.greetings_to_change) {
+        // The AI provides a 1-based index.
+        if (change.index > 0 && change.index <= currentGreetings.length) {
+          currentGreetings[change.index - 1] = change.value;
+        }
+      }
+    }
+
+    if (res.greetings_to_remove?.length) {
+      greetingsModified = true;
+      const indicesToRemove = new Set(res.greetings_to_remove.map((i) => i - 1)); // convert to 0-based
+      currentGreetings = currentGreetings.filter((_, index) => !indicesToRemove.has(index));
+    }
+
+    if (res.greetings_to_add?.length) {
+      greetingsModified = true;
+      currentGreetings.push(...res.greetings_to_add);
+    }
+
+    if (greetingsModified) {
+      // After all operations, rebuild the greeting fields in the state.
+      Object.keys(newState.fields).forEach((key) => {
+        if (key.startsWith('alternate_greetings_')) {
+          delete newState.fields[key];
+        }
+      });
+
+      currentGreetings.forEach((greeting, index) => {
+        const fieldName = `alternate_greetings_${index + 1}`;
+        newState.fields[fieldName] = {
+          value: greeting,
+          prompt: '', // Prompts are not managed in revise sessions.
+          label: `Alternate Greeting ${index + 1}`,
+        };
+      });
+    }
   }
   return newState;
 };
@@ -277,28 +294,39 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
           }
         }
 
-        const response = await makeStructuredRequest(
-          session.profileId,
-          finalMessagesForRequest,
-          session.type === 'field' ? FieldSpecificResponseSchema : GlobalResponseSchema,
-          session.type === 'field' ? REVISE_SCHEMA_NAME.FIELD : REVISE_SCHEMA_NAME.GLOBAL,
-          session.promptEngineeringMode,
-          settings.maxResponseToken,
-          abortControllerRef.current.signal,
-        );
-
         const lastState =
           messagesToSend
             .slice(0, messagesToSend.length - (isRegeneration ? 0 : 1)) // Don't exclude last message if regenerating
             .reverse()
             .find((m) => m.stateSnapshot)?.stateSnapshot ?? initialState;
 
-        const newSnapshot = calculateNewState(lastState, response, session.type, session.targetFieldId);
+        const schema =
+          session.type === 'field'
+            ? FieldSpecificResponseSchema
+            : (() => {
+                const allFieldIds = [...Object.keys(lastState.fields), ...Object.keys(lastState.draftFields)];
+                const draftFieldIds = Object.keys(lastState.draftFields);
+                return createGlobalResponseSchema(allFieldIds, draftFieldIds);
+              })();
+
+        const response = await makeStructuredRequest(
+          session.profileId,
+          finalMessagesForRequest,
+          schema,
+          session.type === 'field' ? REVISE_SCHEMA_NAME.FIELD : REVISE_SCHEMA_NAME.GLOBAL,
+          session.promptEngineeringMode,
+          settings.maxResponseToken,
+          abortControllerRef.current.signal,
+        );
+
+        const typedResponse = response as FieldSpecificResponse | GlobalResponse;
+
+        const newSnapshot = calculateNewState(lastState, typedResponse, session.type, session.targetFieldId);
 
         const assistantMessage: ReviseMessage = {
           id: `msg-${Date.now()}-ai`,
           role: 'assistant',
-          content: response.justification,
+          content: typedResponse.justification,
           stateSnapshot: newSnapshot,
         };
 
