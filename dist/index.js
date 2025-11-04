@@ -23523,7 +23523,7 @@ async function xA(n, r, i, s, o) {
       });
       continue;
     }
-    if (["taskDescription", "stDescription"].includes(v.promptName))
+    if (["taskDescription"].includes(v.promptName))
       continue;
     const S = u.prompts[v.promptName];
     if (!S || S.content.includes("{{activeFormatInstructions}}"))

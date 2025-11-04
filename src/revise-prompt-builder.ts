@@ -91,7 +91,7 @@ export async function buildInitialReviseMessages(
 
     // These prompts are designed for single-field generation and are not suitable for a conversational revise session.
     // They can confuse the AI into making unprompted changes.
-    const irrelevantPrompts = ['taskDescription', 'stDescription'];
+    const irrelevantPrompts = ['taskDescription'];
     if (irrelevantPrompts.includes(block.promptName)) {
       continue;
     }
