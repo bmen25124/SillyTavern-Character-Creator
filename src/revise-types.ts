@@ -103,6 +103,7 @@ export interface ReviseMessage extends Message {
   id: string; // Unique ID for the message
   isInitial?: boolean; // Was this part of the initial prompt?
   stateSnapshot?: CharacterState; // Snapshot of the character state *after* this message was generated
+  isStateUpdate?: boolean; // Is this a hidden message that just contains the state?
 }
 
 export type ReviseSessionType = 'global' | 'field';

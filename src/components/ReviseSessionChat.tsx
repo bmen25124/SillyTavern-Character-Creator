@@ -259,6 +259,79 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const createAndAddStateUpdateMessage = useCallback(
+    (currentMessages: ReviseMessage[], newState: CharacterState, lastState: CharacterState): ReviseMessage[] => {
+      if (JSON.stringify(lastState) === JSON.stringify(newState)) {
+        return currentMessages;
+      }
+
+      const settings = settingsManager.getSettings();
+      const existingFieldsTemplate = settings.prompts.existingFieldDefinitions;
+      if (!existingFieldsTemplate) return currentMessages;
+
+      // Calculate the difference between the two states
+      const changedFieldsData: {
+        core: Record<string, string>;
+        alternate_greetings: Record<string, string>;
+        draft: Record<string, string>;
+      } = { core: {}, alternate_greetings: {}, draft: {} };
+
+      const allFieldKeys = new Set([...Object.keys(lastState.fields), ...Object.keys(newState.fields)]);
+      allFieldKeys.forEach((key) => {
+        const oldValue = lastState.fields[key]?.value ?? '';
+        const newValue = newState.fields[key]?.value ?? '';
+        if (oldValue !== newValue) {
+          const field = newState.fields[key];
+          if (field) {
+            if (key.startsWith('alternate_greetings_')) {
+              changedFieldsData.alternate_greetings[field.label] = field.value;
+            } else if (CHARACTER_FIELDS.includes(key as any)) {
+              changedFieldsData.core[field.label] = field.value;
+            }
+          }
+        }
+      });
+
+      const allDraftFieldKeys = new Set([...Object.keys(lastState.draftFields), ...Object.keys(newState.draftFields)]);
+      allDraftFieldKeys.forEach((key) => {
+        const oldValue = lastState.draftFields[key]?.value ?? '';
+        const newValue = newState.draftFields[key]?.value ?? '';
+        if (oldValue !== newValue) {
+          if (newState.draftFields[key]) {
+            const field = newState.draftFields[key];
+            changedFieldsData.draft[field.label] = field.value;
+          }
+        }
+      });
+
+      // If no reportable changes are found, don't add a message
+      if (
+        Object.keys(changedFieldsData.core).length === 0 &&
+        Object.keys(changedFieldsData.alternate_greetings).length === 0 &&
+        Object.keys(changedFieldsData.draft).length === 0
+      ) {
+        return currentMessages;
+      }
+
+      const templateData = { fields: changedFieldsData };
+      let content = Handlebars.compile(existingFieldsTemplate.content, { noEscape: true })(templateData);
+      content = globalContext.substituteParams(content);
+
+      if (content.trim()) {
+        const stateUpdateMessage: ReviseMessage = {
+          id: `msg-${Date.now()}-state`,
+          role: 'system',
+          content: content.trim(),
+          isStateUpdate: true,
+        };
+        return [...currentMessages, stateUpdateMessage];
+      }
+
+      return currentMessages;
+    },
+    [],
+  );
+
   const sendRequest = useCallback(
     async (
       messagesToSend: ReviseMessage[],
@@ -368,7 +441,9 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
           stateSnapshot: newSnapshot,
         };
 
-        const finalMessages = [...messagesToSend, assistantMessage];
+        let finalMessages = [...messagesToSend, assistantMessage];
+        finalMessages = createAndAddStateUpdateMessage(finalMessages, newSnapshot, lastState);
+
         setMessages(finalMessages);
         onSessionUpdate({ ...session, messages: finalMessages });
       } catch (error: any) {
@@ -384,7 +459,7 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
         abortControllerRef.current = null;
       }
     },
-    [session, onSessionUpdate, initialState, chatContextOptions],
+    [session, onSessionUpdate, initialState, chatContextOptions, createAndAddStateUpdateMessage],
   );
 
   const handleSendMessage = useCallback(async () => {
@@ -516,8 +591,9 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
     st_echo('info', 'Message history has been updated.');
   };
 
-  const initialMsgs = messages.filter((m) => m.isInitial);
-  const chatMsgs = messages.filter((m) => !m.isInitial);
+  const visibleMessages = messages.filter((m) => !m.isStateUpdate);
+  const initialMsgs = visibleMessages.filter((m) => m.isInitial);
+  const chatMsgs = visibleMessages.filter((m) => !m.isInitial);
 
   const currentState =
     messages
@@ -530,6 +606,12 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
   };
 
   const handleSaveStateEdit = (newState: CharacterState) => {
+    const lastState =
+      messages
+        .slice()
+        .reverse()
+        .find((m) => m.stateSnapshot)?.stateSnapshot ?? initialState;
+
     const userEditMessage: ReviseMessage = {
       id: `msg-${Date.now()}-user-edit`,
       role: 'user',
@@ -537,7 +619,9 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
       stateSnapshot: newState,
     };
 
-    const finalMessages = [...messages, userEditMessage];
+    let finalMessages = [...messages, userEditMessage];
+    finalMessages = createAndAddStateUpdateMessage(finalMessages, newState, lastState);
+
     setMessages(finalMessages);
     onSessionUpdate({ ...session, messages: finalMessages });
     setIsEditingState(false);
