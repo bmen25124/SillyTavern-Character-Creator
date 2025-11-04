@@ -301,43 +301,39 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
             .reverse()
             .find((m) => m.stateSnapshot)?.stateSnapshot ?? initialState;
 
-        // If this is a follow-up message, inject the current state of the fields.
-        const isFollowUp = messagesToSend.some((msg) => !msg.isInitial);
-        if (isFollowUp) {
-          const existingFieldsTemplate = settings.prompts.existingFieldDefinitions;
-          if (existingFieldsTemplate) {
-            const templateData = {
-              fields: {
-                core: Object.fromEntries(
-                  Object.entries(lastState.fields)
-                    .filter(([k]) => !k.startsWith('alternate_greetings_'))
-                    .map(([, v]) => [v.label, v.value]),
-                ),
-                alternate_greetings: Object.fromEntries(
-                  Object.entries(lastState.fields)
-                    .filter(([k]) => k.startsWith('alternate_greetings_'))
-                    .map(([, v]) => [v.label, v.value]),
-                ),
-                draft: Object.fromEntries(Object.entries(lastState.draftFields).map(([, v]) => [v.label, v.value])),
-              },
+        const existingFieldsTemplate = settings.prompts.existingFieldDefinitions;
+        if (existingFieldsTemplate) {
+          const templateData = {
+            fields: {
+              core: Object.fromEntries(
+                Object.entries(lastState.fields)
+                  .filter(([k]) => !k.startsWith('alternate_greetings_'))
+                  .map(([, v]) => [v.label, v.value]),
+              ),
+              alternate_greetings: Object.fromEntries(
+                Object.entries(lastState.fields)
+                  .filter(([k]) => k.startsWith('alternate_greetings_'))
+                  .map(([, v]) => [v.label, v.value]),
+              ),
+              draft: Object.fromEntries(Object.entries(lastState.draftFields).map(([, v]) => [v.label, v.value])),
+            },
+          };
+
+          let content = Handlebars.compile(existingFieldsTemplate.content, { noEscape: true })(templateData);
+          content = globalContext.substituteParams(content);
+
+          if (content.trim()) {
+            const stateMessage: ReviseMessage = {
+              id: `temp-state-${Date.now()}`,
+              role: 'system',
+              content: content.trim(),
             };
 
-            let content = Handlebars.compile(existingFieldsTemplate.content, { noEscape: true })(templateData);
-            content = globalContext.substituteParams(content);
-
-            if (content.trim()) {
-              const stateMessage: ReviseMessage = {
-                id: `temp-state-${Date.now()}`,
-                role: 'system',
-                content: content.trim(),
-              };
-
-              // Inject the state message before the last message in the request.
-              const lastMessage = finalMessagesForRequest.pop();
-              finalMessagesForRequest.push(stateMessage);
-              if (lastMessage) {
-                finalMessagesForRequest.push(lastMessage);
-              }
+            // Inject the state message before the last message in the request.
+            const lastMessage = finalMessagesForRequest.pop();
+            finalMessagesForRequest.push(stateMessage);
+            if (lastMessage) {
+              finalMessagesForRequest.push(lastMessage);
             }
           }
         }
