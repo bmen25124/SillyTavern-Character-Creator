@@ -4,6 +4,7 @@ import { ExtensionSettings, settingsManager } from './settings.js';
 import { Session, globalContext } from './generate.js';
 import { Character } from 'sillytavern-utils-lib/types';
 import { WIEntry } from 'sillytavern-utils-lib/types/world-info';
+import { selected_group, this_chid } from 'sillytavern-utils-lib/config';
 
 export async function buildInitialReviseMessages(
   initialState: CharacterState,
@@ -77,6 +78,7 @@ export async function buildInitialReviseMessages(
     if (block.promptName === 'lorebookDefinitions' && !contextToSend.worldInfo) continue;
     if (block.promptName === 'existingFieldDefinitions' && !contextToSend.existingFields) continue;
     if (block.promptName === 'personaDescription' && !contextToSend.persona) continue;
+    if (this_chid === undefined && !selected_group && block.promptName === 'chatHistory') continue;
 
     // Handle chat history as a special case by inserting a placeholder
     if (block.promptName === 'chatHistory') {
