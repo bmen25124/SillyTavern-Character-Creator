@@ -32,7 +32,13 @@ To open the CREC popup, click the extension icon:
 
 ## Demo Video
 
+**Simple usage**
+
 https://github.com/user-attachments/assets/4ed6fbb3-c2a4-4cdc-8692-406af9094266
+
+**Chat with LLM**
+
+https://github.com/user-attachments/assets/d8db5d82-fa8e-4332-97e6-43f8529b7f60
 
 ## FAQ
 
