@@ -2949,12 +2949,12 @@ Error generating stack: ` + a.message + `
             next: null
           });
           e: {
-            var Ee = e, _e = N;
+            var Ee = e, ye = N;
             Z = t;
             var Qe = a;
-            switch (_e.tag) {
+            switch (ye.tag) {
               case 1:
-                if (Ee = _e.payload, typeof Ee == "function") {
+                if (Ee = ye.payload, typeof Ee == "function") {
                   J = Ee.call(Qe, J, Z);
                   break e;
                 }
@@ -2963,7 +2963,7 @@ Error generating stack: ` + a.message + `
               case 3:
                 Ee.flags = Ee.flags & -65537 | 128;
               case 0:
-                if (Ee = _e.payload, Z = typeof Ee == "function" ? Ee.call(Qe, J, Z) : Ee, Z == null) break e;
+                if (Ee = ye.payload, Z = typeof Ee == "function" ? Ee.call(Qe, J, Z) : Ee, Z == null) break e;
                 J = y({}, J, Z);
                 break e;
               case 2:
@@ -4240,7 +4240,7 @@ Error generating stack: ` + a.message + `
         return t(L, Xr);
       }), Ue && ha(L, be), ce;
     }
-    function _e(L, z, P, $) {
+    function ye(L, z, P, $) {
       if (P == null) throw Error(s(151));
       for (var ce = null, ke = null, me = z, be = z = 0, Dt = null, Be = P.next(); me !== null && !Be.done; be++, Be = P.next()) {
         me.index > be ? (Dt = me, me = null) : Dt = me.sibling;
@@ -4346,7 +4346,7 @@ Error generating stack: ` + a.message + `
           );
         if (Q(P)) {
           if (ce = Q(P), typeof ce != "function") throw Error(s(150));
-          return P = ce.call(P), _e(
+          return P = ce.call(P), ye(
             L,
             z,
             P,
@@ -5981,11 +5981,11 @@ Error generating stack: ` + a.message + `
                     Ee,
                     m
                   ), l.__reactInternalSnapshotBeforeUpdate = e;
-                } catch (_e) {
+                } catch (ye) {
                   Ke(
                     a,
                     a.return,
-                    _e
+                    ye
                   );
                 }
               }
@@ -7544,18 +7544,18 @@ Error generating stack: ` + a.message + `
               else {
                 var J = N.ownerDocument || document, Z = J && J.defaultView || window;
                 if (Z.getSelection) {
-                  var F = Z.getSelection(), Ee = N.textContent.length, _e = Math.min(R.start, Ee), Qe = R.end === void 0 ? _e : Math.min(R.end, Ee);
-                  !F.extend && _e > Qe && (C = Qe, Qe = _e, _e = C);
+                  var F = Z.getSelection(), Ee = N.textContent.length, ye = Math.min(R.start, Ee), Qe = R.end === void 0 ? ye : Math.min(R.end, Ee);
+                  !F.extend && ye > Qe && (C = Qe, Qe = ye, ye = C);
                   var L = Fd(
                     N,
-                    _e
+                    ye
                   ), z = Fd(
                     N,
                     Qe
                   );
                   if (L && z && (F.rangeCount !== 1 || F.anchorNode !== L.node || F.anchorOffset !== L.offset || F.focusNode !== z.node || F.focusOffset !== z.offset)) {
                     var P = J.createRange();
-                    P.setStart(L.node, L.offset), F.removeAllRanges(), _e > Qe ? (F.addRange(P), F.extend(z.node, z.offset)) : (P.setEnd(z.node, z.offset), F.addRange(P));
+                    P.setStart(L.node, L.offset), F.removeAllRanges(), ye > Qe ? (F.addRange(P), F.extend(z.node, z.offset)) : (P.setEnd(z.node, z.offset), F.addRange(P));
                   }
                 }
               }
@@ -8124,70 +8124,70 @@ Error generating stack: ` + a.message + `
             case "beforetoggle":
               F = a2;
           }
-          var _e = (t & 4) !== 0, Qe = !_e && (e === "scroll" || e === "scrollend"), L = _e ? Z !== null ? Z + "Capture" : null : Z;
-          _e = [];
+          var ye = (t & 4) !== 0, Qe = !ye && (e === "scroll" || e === "scrollend"), L = ye ? Z !== null ? Z + "Capture" : null : Z;
+          ye = [];
           for (var z = H, P; z !== null; ) {
             var $ = z;
-            if (P = $.stateNode, $ = $.tag, $ !== 5 && $ !== 26 && $ !== 27 || P === null || L === null || ($ = Hi(z, L), $ != null && _e.push(
+            if (P = $.stateNode, $ = $.tag, $ !== 5 && $ !== 26 && $ !== 27 || P === null || L === null || ($ = Hi(z, L), $ != null && ye.push(
               xs(z, $, P)
             )), Qe) break;
             z = z.return;
           }
-          0 < _e.length && (Z = new F(
+          0 < ye.length && (Z = new F(
             Z,
             Ee,
             null,
             a,
             X
-          ), J.push({ event: Z, listeners: _e }));
+          ), J.push({ event: Z, listeners: ye }));
         }
       }
       if ((t & 7) === 0) {
         e: {
           if (Z = e === "mouseover" || e === "pointerover", F = e === "mouseout" || e === "pointerout", Z && a !== qu && (Ee = a.relatedTarget || a.fromElement) && (Ua(Ee) || Ee[Ba]))
             break e;
-          if ((F || Z) && (Z = X.window === X ? X : (Z = X.ownerDocument) ? Z.defaultView || Z.parentWindow : window, F ? (Ee = a.relatedTarget || a.toElement, F = H, Ee = Ee ? Ua(Ee) : null, Ee !== null && (Qe = u(Ee), _e = Ee.tag, Ee !== Qe || _e !== 5 && _e !== 27 && _e !== 6) && (Ee = null)) : (F = null, Ee = H), F !== Ee)) {
-            if (_e = Od, $ = "onMouseLeave", L = "onMouseEnter", z = "mouse", (e === "pointerout" || e === "pointerover") && (_e = Dd, $ = "onPointerLeave", L = "onPointerEnter", z = "pointer"), Qe = F == null ? Z : Ui(F), P = Ee == null ? Z : Ui(Ee), Z = new _e(
+          if ((F || Z) && (Z = X.window === X ? X : (Z = X.ownerDocument) ? Z.defaultView || Z.parentWindow : window, F ? (Ee = a.relatedTarget || a.toElement, F = H, Ee = Ee ? Ua(Ee) : null, Ee !== null && (Qe = u(Ee), ye = Ee.tag, Ee !== Qe || ye !== 5 && ye !== 27 && ye !== 6) && (Ee = null)) : (F = null, Ee = H), F !== Ee)) {
+            if (ye = Od, $ = "onMouseLeave", L = "onMouseEnter", z = "mouse", (e === "pointerout" || e === "pointerover") && (ye = Dd, $ = "onPointerLeave", L = "onPointerEnter", z = "pointer"), Qe = F == null ? Z : Ui(F), P = Ee == null ? Z : Ui(Ee), Z = new ye(
               $,
               z + "leave",
               F,
               a,
               X
-            ), Z.target = Qe, Z.relatedTarget = P, $ = null, Ua(X) === H && (_e = new _e(
+            ), Z.target = Qe, Z.relatedTarget = P, $ = null, Ua(X) === H && (ye = new ye(
               L,
               z + "enter",
               Ee,
               a,
               X
-            ), _e.target = P, _e.relatedTarget = Qe, $ = _e), Qe = $, F && Ee)
+            ), ye.target = P, ye.relatedTarget = Qe, $ = ye), Qe = $, F && Ee)
               t: {
-                for (_e = F, L = Ee, z = 0, P = _e; P; P = bi(P))
+                for (ye = F, L = Ee, z = 0, P = ye; P; P = bi(P))
                   z++;
                 for (P = 0, $ = L; $; $ = bi($))
                   P++;
                 for (; 0 < z - P; )
-                  _e = bi(_e), z--;
+                  ye = bi(ye), z--;
                 for (; 0 < P - z; )
                   L = bi(L), P--;
                 for (; z--; ) {
-                  if (_e === L || L !== null && _e === L.alternate)
+                  if (ye === L || L !== null && ye === L.alternate)
                     break t;
-                  _e = bi(_e), L = bi(L);
+                  ye = bi(ye), L = bi(L);
                 }
-                _e = null;
+                ye = null;
               }
-            else _e = null;
+            else ye = null;
             F !== null && _g(
               J,
               Z,
               F,
-              _e,
+              ye,
               !1
             ), Ee !== null && Qe !== null && _g(
               J,
               Qe,
               Ee,
-              _e,
+              ye,
               !0
             );
           }
@@ -9017,8 +9017,8 @@ Error generating stack: ` + a.message + `
       case "track":
       case "wbr":
       case "menuitem":
-        for (var _e in a)
-          Z = a[_e], a.hasOwnProperty(_e) && Z != null && !l.hasOwnProperty(_e) && Xe(e, t, _e, null, l, Z);
+        for (var ye in a)
+          Z = a[ye], a.hasOwnProperty(ye) && Z != null && !l.hasOwnProperty(ye) && Xe(e, t, ye, null, l, Z);
         for (H in l)
           if (Z = l[H], F = a[H], l.hasOwnProperty(H) && Z !== F && (Z != null || F != null))
             switch (H) {
@@ -18353,7 +18353,7 @@ async function Mx() {
     });
   });
 }
-const ye = ({ children: n, className: r, overrideDefaults: i = !1, ...s }) => {
+const _e = ({ children: n, className: r, overrideDefaults: i = !1, ...s }) => {
   const o = ee.useMemo(() => {
     const u = [];
     return i || u.push("menu_button", "interactable"), u.push(r), u.filter(Boolean).join(" ");
@@ -18666,7 +18666,7 @@ const jx = SillyTavern.getContext(), ji = ({
       ),
       s && (!_ || !v) && /* @__PURE__ */ A.jsx("span", { style: w }),
       r && b && /* @__PURE__ */ A.jsx(
-        ye,
+        _e,
         {
           overrideDefaults: !0,
           className: `toggle-button fas ${g ? "fa-toggle-on" : "fa-toggle-off"}`,
@@ -18683,7 +18683,7 @@ const jx = SillyTavern.getContext(), ji = ({
       ),
       r && !b && /* @__PURE__ */ A.jsx("span", { style: w }),
       i && y && /* @__PURE__ */ A.jsx(
-        ye,
+        _e,
         {
           overrideDefaults: !0,
           className: "delete-button fas fa-trash-can",
@@ -19005,7 +19005,7 @@ const jx = SillyTavern.getContext(), ji = ({
   return /* @__PURE__ */ A.jsxs("div", { className: "preset-select-container", style: { display: "flex", alignItems: "center" }, children: [
     /* @__PURE__ */ A.jsx(_u, { value: n ?? "", onChange: (w) => o(w.target.value, n), children: r.map((w) => /* @__PURE__ */ A.jsx("option", { value: w.value, children: w.label }, w.value)) }),
     f && /* @__PURE__ */ A.jsx(
-      ye,
+      _e,
       {
         className: "fa-solid fa-file-circle-plus",
         title: `Create a new ${s}`,
@@ -19014,7 +19014,7 @@ const jx = SillyTavern.getContext(), ji = ({
       }
     ),
     p && /* @__PURE__ */ A.jsx(
-      ye,
+      _e,
       {
         className: "fa-solid fa-pencil",
         title: `Rename selected ${s}`,
@@ -19024,7 +19024,7 @@ const jx = SillyTavern.getContext(), ji = ({
       }
     ),
     d && /* @__PURE__ */ A.jsx(
-      ye,
+      _e,
       {
         className: "fa-solid fa-trash-can",
         title: `Delete selected ${s}`,
@@ -19034,7 +19034,7 @@ const jx = SillyTavern.getContext(), ji = ({
       }
     ),
     _?.map((w) => /* @__PURE__ */ A.jsx(
-      ye,
+      _e,
       {
         className: w.icon,
         title: w.title,
@@ -19201,7 +19201,7 @@ const jx = SillyTavern.getContext(), ji = ({
       /* @__PURE__ */ A.jsxs("div", { className: "title_restorable", children: [
         /* @__PURE__ */ A.jsx("span", { children: "Main Context Template" }),
         /* @__PURE__ */ A.jsx(
-          ye,
+          _e,
           {
             className: "fa-solid fa-undo",
             title: "Restore main context template to default",
@@ -19238,7 +19238,7 @@ const jx = SillyTavern.getContext(), ji = ({
       /* @__PURE__ */ A.jsxs("div", { className: "title_restorable", children: [
         /* @__PURE__ */ A.jsx("span", { children: "Prompt Templates" }),
         D && /* @__PURE__ */ A.jsx(
-          ye,
+          _e,
           {
             className: "fa-solid fa-undo",
             title: "Restore selected prompt to default",
@@ -19288,7 +19288,7 @@ const jx = SillyTavern.getContext(), ji = ({
       'Show "Save as World Info Entry" option in popup'
     ] }),
     /* @__PURE__ */ A.jsx("hr", { style: { margin: "15px 0" } }),
-    /* @__PURE__ */ A.jsx("div", { style: { textAlign: "center", marginTop: "15px" }, children: /* @__PURE__ */ A.jsxs(ye, { className: "danger_button", style: { width: "auto" }, onClick: O, children: [
+    /* @__PURE__ */ A.jsx("div", { style: { textAlign: "center", marginTop: "15px" }, children: /* @__PURE__ */ A.jsxs(_e, { className: "danger_button", style: { width: "auto" }, onClick: O, children: [
       /* @__PURE__ */ A.jsx("i", { style: { marginRight: "10px" }, className: "fa-solid fa-triangle-exclamation" }),
       "I messed up, reset everything"
     ] }) })
@@ -19316,13 +19316,13 @@ const jx = SillyTavern.getContext(), ji = ({
   /* @__PURE__ */ A.jsxs("div", { className: `field-container ${o ? "large-field" : ""}`, children: [
     /* @__PURE__ */ A.jsx(Dn, { value: i, onChange: (O) => g(n, O.target.value), rows: u }),
     /* @__PURE__ */ A.jsxs("div", { style: { display: "flex", flexDirection: "column" }, children: [
-      /* @__PURE__ */ A.jsx(ye, { onClick: () => b(n), disabled: d, title: "Generate field content", children: d ? /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-spinner fa-spin" }) : /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-wand-magic-sparkles" }) }),
-      /* @__PURE__ */ A.jsx(ye, { onClick: () => _(n), disabled: d, title: "Continue from current content", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-arrow-right" }) }),
-      /* @__PURE__ */ A.jsx(ye, { onClick: () => v(n), title: "Clear field content", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-eraser" }) }),
+      /* @__PURE__ */ A.jsx(_e, { onClick: () => b(n), disabled: d, title: "Generate field content", children: d ? /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-spinner fa-spin" }) : /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-wand-magic-sparkles" }) }),
+      /* @__PURE__ */ A.jsx(_e, { onClick: () => _(n), disabled: d, title: "Continue from current content", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-arrow-right" }) }),
+      /* @__PURE__ */ A.jsx(_e, { onClick: () => v(n), title: "Clear field content", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-eraser" }) }),
       E && !p && // Disabling for draft fields initially for simplicity
-      /* @__PURE__ */ A.jsx(ye, { onClick: () => E(n), title: "Revise with AI chat", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-comments" }) }),
-      !p && h && /* @__PURE__ */ A.jsx(ye, { onClick: () => h(n), title: "Compare with loaded character", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-code-compare" }) }),
-      p && S && /* @__PURE__ */ A.jsx(ye, { onClick: () => S(n), title: "Delete Draft Field", className: "danger_button", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-trash-can" }) })
+      /* @__PURE__ */ A.jsx(_e, { onClick: () => E(n), title: "Revise with AI chat", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-comments" }) }),
+      !p && h && /* @__PURE__ */ A.jsx(_e, { onClick: () => h(n), title: "Compare with loaded character", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-code-compare" }) }),
+      p && S && /* @__PURE__ */ A.jsx(_e, { onClick: () => S(n), title: "Delete Draft Field", className: "danger_button", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-trash-can" }) })
     ] })
   ] }),
   f && /* @__PURE__ */ A.jsx("div", { className: "field-prompt-container", children: /* @__PURE__ */ A.jsx(
@@ -19368,7 +19368,7 @@ const jx = SillyTavern.getContext(), ji = ({
           className: "alternate-greetings-tabs",
           style: { display: "flex", flexWrap: "wrap", gap: "5px", flexGrow: 1 },
           children: n.map((_, v) => /* @__PURE__ */ A.jsxs(
-            ye,
+            _e,
             {
               onClick: () => p(v),
               className: `menu_button ${v === f ? "active" : ""}`,
@@ -19381,7 +19381,7 @@ const jx = SillyTavern.getContext(), ji = ({
           ))
         }
       ),
-      /* @__PURE__ */ A.jsxs(ye, { onClick: d, title: "Add a new alternate greeting", children: [
+      /* @__PURE__ */ A.jsxs(_e, { onClick: d, title: "Add a new alternate greeting", children: [
         /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-plus" }),
         " Add"
       ] })
@@ -19408,10 +19408,10 @@ const jx = SillyTavern.getContext(), ji = ({
         ) })
       ] }),
       /* @__PURE__ */ A.jsxs("div", { style: { display: "flex", flexDirection: "column" }, children: [
-        /* @__PURE__ */ A.jsx(ye, { onClick: () => i(f), disabled: u, title: "Generate greeting", children: u ? /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-spinner fa-spin" }) : /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-wand-magic-sparkles" }) }),
-        /* @__PURE__ */ A.jsx(ye, { onClick: () => s(f), disabled: u, title: "Continue greeting", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-arrow-right" }) }),
+        /* @__PURE__ */ A.jsx(_e, { onClick: () => i(f), disabled: u, title: "Generate greeting", children: u ? /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-spinner fa-spin" }) : /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-wand-magic-sparkles" }) }),
+        /* @__PURE__ */ A.jsx(_e, { onClick: () => s(f), disabled: u, title: "Continue greeting", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-arrow-right" }) }),
         /* @__PURE__ */ A.jsx(
-          ye,
+          _e,
           {
             onClick: () => y(f, "value", ""),
             disabled: u,
@@ -19419,9 +19419,9 @@ const jx = SillyTavern.getContext(), ji = ({
             children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-eraser" })
           }
         ),
-        /* @__PURE__ */ A.jsx(ye, { onClick: () => o(f), disabled: u, title: "Compare greeting", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-code-compare" }) }),
+        /* @__PURE__ */ A.jsx(_e, { onClick: () => o(f), disabled: u, title: "Compare greeting", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-code-compare" }) }),
         /* @__PURE__ */ A.jsx(
-          ye,
+          _e,
           {
             onClick: g,
             disabled: u,
@@ -23097,11 +23097,11 @@ const S1 = ({ originalContent: n, newContent: r }) => {
     /* @__PURE__ */ A.jsxs("div", { className: "popup_header", children: [
       /* @__PURE__ */ A.jsx("h3", { children: "Editing Character State" }),
       /* @__PURE__ */ A.jsxs("div", { className: "popup_header_buttons", children: [
-        /* @__PURE__ */ A.jsxs(ye, { onClick: y, children: [
+        /* @__PURE__ */ A.jsxs(_e, { onClick: y, children: [
           /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-check" }),
           " Save Changes"
         ] }),
-        /* @__PURE__ */ A.jsxs(ye, { onClick: i, className: "danger_button", children: [
+        /* @__PURE__ */ A.jsxs(_e, { onClick: i, className: "danger_button", children: [
           /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-times" }),
           " Cancel"
         ] })
@@ -23292,10 +23292,10 @@ const S1 = ({ originalContent: n, newContent: r }) => {
             ]
           }
         ),
-        /* @__PURE__ */ A.jsx(ye, { onClick: oe, title: "View current character state", children: "View State" }),
-        /* @__PURE__ */ A.jsx(ye, { onClick: K, title: "Manually edit the current state", children: "Edit State" }),
-        /* @__PURE__ */ A.jsx(ye, { onClick: r, title: "Back to sessions", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-arrow-left" }) }),
-        /* @__PURE__ */ A.jsxs(ye, { onClick: Y, title: "Apply Changes and Close", children: [
+        /* @__PURE__ */ A.jsx(_e, { onClick: oe, title: "View current character state", children: "View State" }),
+        /* @__PURE__ */ A.jsx(_e, { onClick: K, title: "Manually edit the current state", children: "Edit State" }),
+        /* @__PURE__ */ A.jsx(_e, { onClick: r, title: "Back to sessions", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-arrow-left" }) }),
+        /* @__PURE__ */ A.jsxs(_e, { onClick: Y, title: "Apply Changes and Close", children: [
           /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-check" }),
           " Apply"
         ] })
@@ -23308,11 +23308,11 @@ const S1 = ({ originalContent: n, newContent: r }) => {
           (G) => w === G.id ? /* @__PURE__ */ A.jsxs("div", { className: "message-editor", children: [
             /* @__PURE__ */ A.jsx(Dn, { value: x, onChange: (pe) => T(pe.target.value), rows: 5 }),
             /* @__PURE__ */ A.jsxs("div", { className: "editor-buttons", children: [
-              /* @__PURE__ */ A.jsxs(ye, { onClick: U, children: [
+              /* @__PURE__ */ A.jsxs(_e, { onClick: U, children: [
                 /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-check" }),
                 " Save & Fork"
               ] }),
-              /* @__PURE__ */ A.jsxs(ye, { onClick: ge, children: [
+              /* @__PURE__ */ A.jsxs(_e, { onClick: ge, children: [
                 /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-times" }),
                 " Cancel"
               ] })
@@ -23321,7 +23321,7 @@ const S1 = ({ originalContent: n, newContent: r }) => {
             /* @__PURE__ */ A.jsx("div", { className: `message-bubble ${G.role} initial`, children: /* @__PURE__ */ A.jsx("div", { className: "message-content", children: G.content }) }),
             !y && G.id !== Hh && /* @__PURE__ */ A.jsxs("div", { className: "message-actions", children: [
               /* @__PURE__ */ A.jsxs(
-                ye,
+                _e,
                 {
                   className: "message-action-button",
                   onClick: () => fe(G),
@@ -23334,7 +23334,7 @@ const S1 = ({ originalContent: n, newContent: r }) => {
                 }
               ),
               /* @__PURE__ */ A.jsxs(
-                ye,
+                _e,
                 {
                   className: "message-action-button danger_button",
                   onClick: () => te(G.id),
@@ -23354,11 +23354,11 @@ const S1 = ({ originalContent: n, newContent: r }) => {
         (G) => w === G.id ? /* @__PURE__ */ A.jsxs("div", { className: "message-editor", children: [
           /* @__PURE__ */ A.jsx(Dn, { value: x, onChange: (pe) => T(pe.target.value), rows: 3 }),
           /* @__PURE__ */ A.jsxs("div", { className: "editor-buttons", children: [
-            /* @__PURE__ */ A.jsxs(ye, { onClick: U, children: [
+            /* @__PURE__ */ A.jsxs(_e, { onClick: U, children: [
               /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-check" }),
               " Save & Fork"
             ] }),
-            /* @__PURE__ */ A.jsxs(ye, { onClick: ge, children: [
+            /* @__PURE__ */ A.jsxs(_e, { onClick: ge, children: [
               /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-times" }),
               " Cancel"
             ] })
@@ -23366,7 +23366,7 @@ const S1 = ({ originalContent: n, newContent: r }) => {
         ] }, G.id) : /* @__PURE__ */ A.jsxs("div", { className: `message-bubble-wrapper ${G.role}`, children: [
           /* @__PURE__ */ A.jsxs("div", { className: "message-actions", children: [
             G.role === "user" && !G.stateSnapshot && !y && /* @__PURE__ */ A.jsxs(
-              ye,
+              _e,
               {
                 className: "message-action-button",
                 onClick: () => fe(G),
@@ -23379,7 +23379,7 @@ const S1 = ({ originalContent: n, newContent: r }) => {
               }
             ),
             G.stateSnapshot && !y && /* @__PURE__ */ A.jsxs(
-              ye,
+              _e,
               {
                 className: "message-action-button",
                 onClick: () => Q(G.id),
@@ -23392,7 +23392,7 @@ const S1 = ({ originalContent: n, newContent: r }) => {
               }
             ),
             !y && /* @__PURE__ */ A.jsxs(
-              ye,
+              _e,
               {
                 className: "message-action-button danger_button",
                 onClick: () => te(G.id),
@@ -23408,7 +23408,7 @@ const S1 = ({ originalContent: n, newContent: r }) => {
           /* @__PURE__ */ A.jsx("div", { className: `message-bubble ${G.role}`, children: /* @__PURE__ */ A.jsx("div", { className: "message-content", children: G.content }) })
         ] }, G.id)
       ),
-      De.length > 0 && !y && /* @__PURE__ */ A.jsx("div", { className: "regenerate-button-wrapper", children: /* @__PURE__ */ A.jsxs(ye, { onClick: I, title: "Regenerate response", children: [
+      De.length > 0 && !y && /* @__PURE__ */ A.jsx("div", { className: "regenerate-button-wrapper", children: /* @__PURE__ */ A.jsxs(_e, { onClick: I, title: "Regenerate response", children: [
         " ",
         /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-rotate-right" }),
         " Regenerate",
@@ -23416,7 +23416,7 @@ const S1 = ({ originalContent: n, newContent: r }) => {
       ] }) }),
       y && /* @__PURE__ */ A.jsxs("div", { className: "message-bubble-wrapper assistant", children: [
         /* @__PURE__ */ A.jsx("div", { className: "message-bubble assistant loading", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-spinner fa-spin" }) }),
-        /* @__PURE__ */ A.jsx(ye, { onClick: se, className: "danger_button", title: "Cancel Request", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-stop" }) })
+        /* @__PURE__ */ A.jsx(_e, { onClick: se, className: "danger_button", title: "Cancel Request", children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-stop" }) })
       ] }),
       /* @__PURE__ */ A.jsx("div", { ref: M })
     ] }),
@@ -23434,7 +23434,7 @@ const S1 = ({ originalContent: n, newContent: r }) => {
           }
         }
       ),
-      /* @__PURE__ */ A.jsxs(ye, { onClick: V, disabled: y || !d.trim() || !!w, children: [
+      /* @__PURE__ */ A.jsxs(_e, { onClick: V, disabled: y || !d.trim() || !!w, children: [
         " ",
         /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-paper-plane" }),
         " "
@@ -23657,22 +23657,19 @@ const iu = SillyTavern.getContext(), Qy = "charCreator_reviseSessions", CA = ({
   }
   const w = n.type === "field" ? s.fields[n.fieldId]?.label || s.draftFields[n.fieldId]?.label : "Global";
   return /* @__PURE__ */ A.jsxs("div", { className: "revise-session-manager", children: [
-    /* @__PURE__ */ A.jsxs("div", { className: "popup_header", children: [
-      /* @__PURE__ */ A.jsxs("h2", { children: [
-        'Revise Sessions for "',
-        w,
-        '"'
-      ] }),
-      /* @__PURE__ */ A.jsx("div", { className: "popup_header_buttons", children: /* @__PURE__ */ A.jsx(ye, { onClick: r, children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-times" }) }) })
-    ] }),
+    /* @__PURE__ */ A.jsx("div", { className: "popup_header", children: /* @__PURE__ */ A.jsxs("h2", { children: [
+      'Revise Sessions for "',
+      w,
+      '"'
+    ] }) }),
     /* @__PURE__ */ A.jsx("div", { className: "session-list", children: y ? /* @__PURE__ */ A.jsx("p", { className: "subtle", style: { textAlign: "center" }, children: "Loading sessions..." }) : _.length === 0 ? /* @__PURE__ */ A.jsx("p", { className: "subtle", style: { textAlign: "center" }, children: "No sessions found. Create a new one to get started." }) : _.map((D) => /* @__PURE__ */ A.jsxs("div", { className: "session-item", children: [
       /* @__PURE__ */ A.jsxs("div", { className: "session-info", onClick: () => S(D), children: [
         /* @__PURE__ */ A.jsx("span", { className: "session-name", children: D.name }),
         /* @__PURE__ */ A.jsx("span", { className: "session-date", children: new Date(D.createdAt).toLocaleString() })
       ] }),
-      /* @__PURE__ */ A.jsx(ye, { className: "danger_button", onClick: () => E(D.id), children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-trash-can" }) })
+      /* @__PURE__ */ A.jsx(_e, { className: "danger_button", onClick: () => E(D.id), children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-trash-can" }) })
     ] }, D.id)) }),
-    /* @__PURE__ */ A.jsx("div", { className: "session-actions", children: /* @__PURE__ */ A.jsxs(ye, { onClick: h, className: "menu_button", children: [
+    /* @__PURE__ */ A.jsx("div", { className: "session-actions", children: /* @__PURE__ */ A.jsxs(_e, { onClick: h, className: "menu_button", children: [
       /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-plus" }),
       " New Session"
     ] }) })
@@ -24284,15 +24281,15 @@ const Tn = SillyTavern.getContext(), $y = "charCreator", _h = () => ({
       /* @__PURE__ */ A.jsxs("div", { className: "wide-column", children: [
         /* @__PURE__ */ A.jsxs("div", { className: "character-field-actions", children: [
           /* @__PURE__ */ A.jsx(
-            ye,
+            _e,
             {
               onClick: ge,
               title: "Open global revision sessions to edit multiple fields at once",
               children: /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-comments" })
             }
           ),
-          /* @__PURE__ */ A.jsx(ye, { onClick: ae, children: "Save as New" }),
-          /* @__PURE__ */ A.jsx(ye, { onClick: se, disabled: !h, children: "Override Char" }),
+          /* @__PURE__ */ A.jsx(_e, { onClick: ae, children: "Save as New" }),
+          /* @__PURE__ */ A.jsx(_e, { onClick: se, disabled: !h, children: "Override Char" }),
           r.showSaveAsWorldInfoEntry.show && /* @__PURE__ */ A.jsx(
             Wo,
             {
@@ -24324,7 +24321,7 @@ const Tn = SillyTavern.getContext(), $y = "charCreator", _h = () => ({
               }
             }
           ),
-          /* @__PURE__ */ A.jsxs(ye, { onClick: ue, children: [
+          /* @__PURE__ */ A.jsxs(_e, { onClick: ue, children: [
             /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-rotate-left", style: { marginRight: "10px" } }),
             "Reset Fields"
           ] }),
@@ -24342,7 +24339,7 @@ const Tn = SillyTavern.getContext(), $y = "charCreator", _h = () => ({
         ] }),
         /* @__PURE__ */ A.jsxs("div", { className: "tab-buttons", children: [
           /* @__PURE__ */ A.jsx(
-            ye,
+            _e,
             {
               onClick: () => g("core"),
               className: `menu_button tab-button ${d === "core" ? "active" : ""}`,
@@ -24350,7 +24347,7 @@ const Tn = SillyTavern.getContext(), $y = "charCreator", _h = () => ({
             }
           ),
           /* @__PURE__ */ A.jsx(
-            ye,
+            _e,
             {
               onClick: () => g("draft"),
               className: `menu_button tab-button ${d === "draft" ? "active" : ""}`,
@@ -24358,12 +24355,12 @@ const Tn = SillyTavern.getContext(), $y = "charCreator", _h = () => ({
             }
           ),
           /* @__PURE__ */ A.jsx("div", { className: "right-aligned", children: d === "draft" && /* @__PURE__ */ A.jsxs(A.Fragment, { children: [
-            /* @__PURE__ */ A.jsxs(ye, { onClick: oe, children: [
+            /* @__PURE__ */ A.jsxs(_e, { onClick: oe, children: [
               /* @__PURE__ */ A.jsx("i", { className: "fa-solid fa-plus" }),
               " Add"
             ] }),
-            /* @__PURE__ */ A.jsx(ye, { onClick: G, children: "Export" }),
-            /* @__PURE__ */ A.jsx(ye, { onClick: pe, children: "Import" })
+            /* @__PURE__ */ A.jsx(_e, { onClick: G, children: "Export" }),
+            /* @__PURE__ */ A.jsx(_e, { onClick: pe, children: "Import" })
           ] }) })
         ] }),
         /* @__PURE__ */ A.jsxs("div", { className: "tab-content-area", children: [

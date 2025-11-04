@@ -185,11 +185,6 @@ export const ReviseSessionManager: FC<ReviseSessionManagerProps> = ({
     <div className="revise-session-manager">
       <div className="popup_header">
         <h2>Revise Sessions for "{targetLabel}"</h2>
-        <div className="popup_header_buttons">
-          <STButton onClick={onClose}>
-            <i className="fa-solid fa-times"></i>
-          </STButton>
-        </div>
       </div>
       <div className="session-list">
         {isLoading ? (
