@@ -78,6 +78,7 @@ export async function buildInitialReviseMessages(
     if (block.promptName === 'lorebookDefinitions' && !contextToSend.worldInfo) continue;
     if (block.promptName === 'existingFieldDefinitions' && !contextToSend.existingFields) continue;
     if (block.promptName === 'personaDescription' && !contextToSend.persona) continue;
+    if (block.promptName === 'chatHistory' && contextToSend.messages.type === 'none') continue;
     if (this_chid === undefined && !selected_group && block.promptName === 'chatHistory') continue;
 
     // Handle chat history as a special case by inserting a placeholder

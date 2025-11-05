@@ -23578,7 +23578,7 @@ async function xA(n, r, i, s, o) {
     ), g.lorebooks = v;
   }
   for (const v of f.prompts) {
-    if (!v.enabled || v.promptName === "stDescription" && !s.stDescription || v.promptName === "charDefinitions" && !s.charCard || v.promptName === "lorebookDefinitions" && !s.worldInfo || v.promptName === "existingFieldDefinitions" && !s.existingFields || v.promptName === "personaDescription" && !s.persona || vn === void 0 && !Er && v.promptName === "chatHistory") continue;
+    if (!v.enabled || v.promptName === "stDescription" && !s.stDescription || v.promptName === "charDefinitions" && !s.charCard || v.promptName === "lorebookDefinitions" && !s.worldInfo || v.promptName === "existingFieldDefinitions" && !s.existingFields || v.promptName === "personaDescription" && !s.persona || v.promptName === "chatHistory" && s.messages.type === "none" || vn === void 0 && !Er && v.promptName === "chatHistory") continue;
     if (v.promptName === "chatHistory") {
       p.push({
         id: Hd,
