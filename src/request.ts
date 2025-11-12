@@ -70,6 +70,21 @@ async function makeRequest(
   });
 }
 
+export async function makePlainRequest(
+  profileId: string,
+  prompt: Message[],
+  maxTokens: number,
+  signal?: AbortSignal,
+): Promise<string> {
+  const response = await makeRequest(profileId, prompt, maxTokens, {}, undefined, signal);
+
+  if (!response?.content) {
+    throw new Error('Plain request failed to return content.');
+  }
+
+  return response.content as string;
+}
+
 export async function makeStructuredRequest<T extends z.ZodType<any, any, any>>(
   profileId: string,
   baseMessages: Message[],

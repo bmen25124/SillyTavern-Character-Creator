@@ -78,6 +78,7 @@ export const ReviseSessionManager: FC<ReviseSessionManagerProps> = ({
         },
         profileId: currentSettings.profileId,
         promptEngineeringMode: currentSettings.defaultPromptEngineeringMode,
+        isReadonly: false,
       };
 
       const initialMsgs = await buildInitialReviseMessages(
