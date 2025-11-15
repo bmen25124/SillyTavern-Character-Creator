@@ -119,6 +119,7 @@
         display: flex;
         gap: 15px;
         flex-direction: row-reverse;
+
         @media (max-width: 768px) {
             flex-wrap: wrap;
         }
@@ -217,9 +218,11 @@
             margin-left: auto;
             display: flex;
             gap: 10px;
+
             .menu_button {
                 width: auto;
             }
+
             flex-wrap: wrap;
         }
 
@@ -266,6 +269,7 @@
         font-size: 0.9em;
         margin-bottom: 15px;
     }
+
     /* Compare popup styles */
     .compare-popup {
         color: var(--SmartThemeBodyColor);
@@ -316,6 +320,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 /* Revise Session Styles */
@@ -354,9 +359,11 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
+
             .session-name {
                 font-weight: 500;
             }
+
             .session-date {
                 font-size: 0.8em;
                 color: var(--SmartThemeEmColor);
@@ -418,11 +425,16 @@
 
         &.user {
             justify-content: flex-end;
-            .message-actions { order: -1; }
+
+            .message-actions {
+                order: -1;
+            }
         }
+
         &.assistant {
             justify-content: flex-start;
         }
+
         &.initial-context {
             justify-content: space-between;
             align-items: flex-start;
@@ -478,6 +490,7 @@
                 background-color: var(--SmartThemeBotMesBlurTintColor);
                 color: var(--SmartThemeEmColor);
             }
+
             &.user {
                 background-color: var(--SmartThemeUserMesBlurTintColor);
                 color: var(--SmartThemeBodyColor);
@@ -518,6 +531,7 @@
         textarea {
             flex-grow: 1;
         }
+
         button {
             height: 40px;
             width: 40px;
@@ -612,7 +626,10 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 15px;
-        h3 { margin: 0; }
+
+        h3 {
+            margin: 0;
+        }
     }
 
     h4 {

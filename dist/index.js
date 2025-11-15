@@ -23367,13 +23367,13 @@ const S1 = ({ originalContent: n, newContent: r }) => {
           ),
           "Readonly Mode"
         ] }),
-        /* @__PURE__ */ A.jsx(
+        /* @__PURE__ */ A.jsx("div", { style: { maxWidth: "200px" }, children: /* @__PURE__ */ A.jsx(
           F0,
           {
             initialSelectedProfileId: n.profileId,
             onChange: (Y) => s({ ...n, profileId: Y?.id ?? "" })
           }
-        ),
+        ) }),
         /* @__PURE__ */ A.jsxs(
           "select",
           {
@@ -23382,6 +23382,7 @@ const S1 = ({ originalContent: n, newContent: r }) => {
             onChange: (Y) => s({ ...n, promptEngineeringMode: Y.target.value }),
             title: "Prompt Engineering Mode",
             disabled: n.isReadonly,
+            style: { minWidth: "fit-content", width: "unset" },
             children: [
               /* @__PURE__ */ A.jsx("option", { value: "native", children: "Native" }),
               /* @__PURE__ */ A.jsx("option", { value: "json", children: "JSON" }),
