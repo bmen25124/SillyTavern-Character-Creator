@@ -1,98 +1,96 @@
 export const DEFAULT_CHAR_CARD_DESCRIPTION = `=======
 
-When creating a **character card** in SillyTavern, you can define a structured profile to guide the AI's behavior and ensure consistency in roleplay or storytelling. Below are the common fields and their purposes, based on community templates and best practices:
+A character card is the blueprint for your AI. Its purpose is to provide a clear, consistent, and compelling set of instructions that guide the AI's personality, behavior, and speech. A well-crafted card is the difference between a forgettable bot and an immersive, believable character.
+
+This guide is structured into two parts:
+1.  **Core Identity:** The essential fields that define who your character is.
+2.  **Interaction & Context:** The fields that define how the user will interact with them.
 
 ---
 
-### **1. Name**
-**Purpose**:
-The character's primary identifier. The AI uses this to reference the character in dialogue and narration.
-**Key Tips**:
-- Use a memorable name that reflects their role (e.g., "Zara the Shadowblade" implies stealth/combat).
-- Avoid overly complex or ambiguous names (e.g., "Xy'lthraa" may confuse the AI).
-**Example**:
-\`"Seraphina Vale"\` (Elegant, hints at nobility) vs. \`"Rusty"\` (Casual, rugged).
+### Part 1: Core Identity - Defining Who The Character Is
+
+These fields build the foundation of your character's being.
+
+#### 1. Name
+The character's primary identifier. It sets the first impression.
+
+*   **Purpose**: To give the AI and user a clear reference point.
+*   **Best Practices**:
+    *   **Be Evocative**: A name like "Sergeant Rex 'Ironclad' Jones" tells a story. "Bob" does not.
+    *   **Prioritize Clarity**: Avoid names that are difficult to spell or pronounce, as the AI may misuse them.
+*   **Example**:
+    *   **Strong**: "Kaelen, the Whisperwood Scout"
+    *   **Weak**: "Xy'zth'gor"
+
+#### 2. Description (The "At-a-Glance" Summary)
+This is a concise paragraph that gives the AI a holistic "mental image" of the character. It should blend their most critical physical and personality traits into a single snapshot.
+
+*   **Purpose**: To provide a quick, high-level summary the AI can reference for appearance, demeanor, and key details.
+*   **Structure**:
+    1.  **Appearance**: Start with their most defining physical features.
+    2.  **Demeanor**: Describe their general personality and how they carry themselves.
+    3.  **A Key Quirk**: End with a unique detail that makes them memorable.
+*   **Example**:
+    > A tall, graceful woman with bronze hair and startling green eyes, carrying herself with the quiet dignity of a noble and the focused intensity of a warrior. A member of a secretive matriarchal order, she is a master of subtle influence and a formidable political strategist. Though her exterior is composed and serene, she is fiercely protective of those she loves.
+
+#### 3. Personality (The "Rulebook" for Behavior)
+While the **Description** is a summary, this field contains direct, explicit instructions for the AI. It defines the character's internal thoughts, motivations, and behavioral rules in detail.
+
+*   **Purpose**: To eliminate ambiguity and give the AI a clear, actionable set of traits to follow.
+*   **Best Practices**:
+    *   Use clear, declarative sentences to define the character's core rules.
+    *   Focus on core motivations, deep-seated fears, and moral alignment.
+    *   Avoid contradictions (e.g., describing a character as both "Patient" and "Impulsive") to ensure the AI's behavior remains consistent.
+*   **Example**:
+    > A supreme pragmatist who believes a functioning society is more important than a moral one. Masterfully manipulative, he remains several steps ahead of allies and enemies alike, viewing people as pieces on a chessboard to be positioned for the city's greater good. He abhors chaos and inefficiency above all else, maintaining a calm, detached, and unnervingly still demeanor that forces others to fill the silence. He never raises his voice, preferring to convey threats with quiet, measured words.
 
 ---
 
-### **2. Description**
-**Purpose**:
-A snapshot of the character's identity, combining **appearance**, **personality**, and **key traits** to guide the AI's "mental image."
-**Structure**:
-- **Appearance**: Physical traits (e.g., scars, clothing, species).
-- **Personality**: Core demeanor (e.g., stoic, playful).
-- **Mannerisms**: Unique habits (e.g., "taps fingers when lying").
-**Example**:
-> *"A hulking orc with moss-green skin and a chipped tusk, wearing a patchwork cloak. Despite his intimidating frame, he speaks softly and collects wildflowers. Secretly fears fire."*
-**Tips**:
-- Use vivid, concise language.
-- Prioritize traits critical to roleplay (e.g., "blind in one eye" affects interactions).
+### Part 2: Interaction & Context - Setting the Stage
 
----
+These fields define the environment and the way your character communicates.
 
-### **3. Personality**
-**Purpose**:
-Explicitly defines **how the character thinks/behaves**, reducing ambiguity for the AI.
-**What to Include**:
-- Core traits (e.g., "optimistic", "paranoid").
-- Motivations (e.g., "seeks revenge against the crown").
-- Flaws (e.g., "impulsive", "overly trusting").
-**Example**:
-\`"Charismatic but manipulative; values loyalty only when it benefits him. Haunted by guilt over a failed rescue mission."\`
-**Tips**:
-- Use bullet points or short phrases for clarity.
-- Avoid contradictions (e.g., "shy" vs. "loves public speaking").
+#### 4. Scenario (The "Where, When, and Why")
+This sets the scene for the interaction, providing the context that frames the roleplay.
 
----
+*   **Purpose**: To establish the setting, the timeline, and the initial relationship between the character and the user.
+*   **What to Include**:
+    *   **Location**: Where is the interaction taking place?
+    *   **Context**: What is happening?
+    *   **Relationship**: How do {{char}} and {{user}} know each other?
+*   **Example**:
+    > The setting is a grimy, unsupervised slum in a sprawling metropolis, a place where illegal commerce thrives. The sky is the color of a dead television channel. {{char}} is a "console cowboy," a disgraced data thief whose nervous system was damaged as punishment for stealing from an employer. {{user}} is a mysterious mercenary who has tracked {{char}} down to offer a cure in exchange for one last, impossible job.
 
-### **4. Scenario**
-**Purpose**:
-Sets the stage for the interaction, providing **contextual boundaries** for the AI.
-**What to Include**:
-- **Location**: Where the scene takes place (e.g., "a smoky tavern").
-- **Time**: Era or time-sensitive context (e.g., "during a solar eclipse").
-- **Relationship**: Predefined ties to the user (e.g., "childhood rivals reunited").
-**Example**:
-\`"A cyberpunk night market in 2147. {{char}} is a rogue hacker who suspects {{user}} works for the corrupt government."\`
-**Tips**:
-- Use dynamic placeholders like \`{{user}}\` to personalize the scenario.
+#### 5. First Message (The Opening Hook)
+This is the character's opening line. It's the single most important field for establishing tone, voice, and immediate engagement.
 
----
+*   **Purpose**: To kick off the roleplay with a compelling hook that embodies the character's personality.
+*   **Key Elements**:
+    1.  **Action**: Start with a physical action to ground the scene.
+    2.  **Dialogue**: Write a line that reveals their personality.
+    3.  **A Hook**: End with something that prompts a response.
+*   **Example**:
+    > *{{char}} calmly watches the spinning ceiling fan, the smoke from his cigarette curling into the stagnant air. He doesn't meet {{user}}'s eyes, instead focusing on the condensation on his glass.* "They're just questions. It's a test, designed to provoke an emotional response. Shall we continue?"
 
-### **5. First Message - Alternate Greetings**
-**Purpose**:
-The character's **opening line**, critical for establishing tone, voice, and narrative momentum.
-**Key Elements**:
-- **Dialogue**: Shows speech style (formal, slang-heavy).
-- **Actions**: Subtle body language (e.g., "crosses arms skeptically").
-- **Hook**: Encourages user engagement (e.g., a question or mystery).
-**Example**:
-\`*{{char}} adjusts her gas mask, voice muffled.* "You're the third outsider this week. What makes you think you'll survive the Wastes?"\`
-**Tips**:
-- Avoid passive openings (e.g., "Hello, how can I help you?").
-- Mirror the character's personality (e.g., a shy character might stammer).
+#### 6. Example Dialogue (The Voice & Style Guide)
+This is a "style guide" that teaches the AI *how* your character speaks, thinks, and formats their responses.
 
----
+*   **Purpose**: To provide a clear template for the character's speech patterns, vocabulary, and interaction style.
+*   **Structure**:
+    *   Use {{user}} and {{char}} to create 2-3 short exchanges.
+    *   Showcase a range of emotions.
+    *   Mix dialogue with actions (in asterisks) to demonstrate their body language.
+*   **Example**:
+    \`\`\`
+    {{user}}: "What makes you think your plan will work?"
+    {{char}}: *A slow, confident smirk spreads across her face as she leans back in her chair, boots resting on the scarred metal desk.* "Because I accounted for every variable. Especially the human one—your greed."
 
-### **6. Example Dialogue**
-**Purpose**:
-Teaches the AI the character's **speech patterns**, **formatting preferences**, and **interaction style**.
-**Structure**:
-- Use \`{{char}}\` and \`{{user}}\` placeholders.
-- Mix dialogue and actions (e.g., \`*{{char}} smirks.* "You're bold. I like that."\`).
-- Show range (e.g., anger, sarcasm, vulnerability).
-**Example**:
-\`\`\`
-{{user}}: Why should I trust you?
-{{char}}: *Pulls a dagger from her boot and twirls it.* "You shouldn't. But I'm your only way out of this alive."
-\`\`\`
-**Tips**:
-- Include 3–5 varied exchanges.
-- Match the character's voice (e.g., a poet might use metaphors).
+    {{user}}: "I'm not sure I can do this."
+    {{char}}: *Her expression softens for a brief moment. She places a reassuring hand on {{user}}'s shoulder, her calloused fingers a surprising comfort.* "Fear is just a signal. It tells you what you need to protect. Now, let's protect it together."
+    \`\`\`
 
----
-
-### **7. Advanced Tips**
+#### 7. Advanced Tips
 - **Avoid "Wall of Text"**: Use line breaks and punctuation to improve readability for the AI.
 
 =======`;

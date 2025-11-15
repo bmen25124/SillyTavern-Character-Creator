@@ -20,7 +20,7 @@ import { globalContext } from './generate.js';
 
 export const extensionName = 'SillyTavern-Character-Creator';
 export const VERSION = '0.3.0';
-export const FORMAT_VERSION = 'F_1.8';
+export const FORMAT_VERSION = 'F_1.9';
 
 export const KEYS = {
   EXTENSION: 'charCreator',
@@ -657,6 +657,21 @@ export async function initializeSettings(): Promise<void> {
                 response.prompts.existingFieldDefinitions.content = DEFAULT_EXISTING_FIELDS_DEFINITION;
               }
 
+              return response;
+            },
+          },
+          {
+            from: 'F_1.8',
+            to: 'F_1.9',
+            action(previous: ExtensionSettings): ExtensionSettings {
+              // Update `stDescription` prompt if it was default
+              const response = {
+                ...previous,
+              } as ExtensionSettings;
+
+              if (previous.prompts.stDescription.isDefault) {
+                response.prompts.stDescription.content = DEFAULT_CHAR_CARD_DESCRIPTION;
+              }
               return response;
             },
           },

@@ -417,6 +417,11 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
         }
 
         if (session.isReadonly) {
+          finalMessagesForRequest.push({
+            id: `msg-${Date.now()}-readonly`,
+            role: 'system',
+            content: 'Readonly mode enabled. You can only discuss with the user without making changes.',
+          });
           const responseContent = await makePlainRequest(
             session.profileId,
             finalMessagesForRequest,
