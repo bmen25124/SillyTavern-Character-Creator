@@ -25,6 +25,12 @@ import { CompareFieldPopup } from './CompareFieldPopup.js';
 import { CharacterState, ReviseSessionType } from '../revise-types.js';
 import { ReviseSessionManager } from './ReviseSessionManager.js';
 
+if (!Handlebars.helpers['add']) {
+  Handlebars.registerHelper('add', function (a: any, b: any) {
+    return Number(a) + Number(b);
+  });
+}
+
 if (!Handlebars.helpers['join']) {
   Handlebars.registerHelper('join', function (array: any, separator: any) {
     if (Array.isArray(array)) {
