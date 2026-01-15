@@ -385,16 +385,6 @@ export const MainPopup: FC = () => {
     }
   }, []);
 
-  const handleLoadCurrentChar = useCallback(async () => {
-    if (selected_group) {
-      return st_echo('warning', 'Cannot load current character in a group chat.');
-    }
-    if (this_chid === undefined) {
-      return st_echo('warning', 'No character chat is currently open.');
-    }
-    await handleLoadCharacter(String(this_chid));
-  }, [handleLoadCharacter]);
-
   const handleCompare = useCallback(
     (fieldId: string | number) => {
       if (!loadedCharacter) return st_echo('warning', 'Please load a character to compare against.');
@@ -433,6 +423,16 @@ export const MainPopup: FC = () => {
     },
     [allCharacters, session.fields, handleGreetingsChange],
   );
+
+  const handleLoadCurrentChar = useCallback(async () => {
+    if (selected_group) {
+      return st_echo('warning', 'Cannot load current character in a group chat.');
+    }
+    if (this_chid === undefined) {
+      return st_echo('warning', 'No character chat is currently open.');
+    }
+    await handleLoadCharacter(String(this_chid));
+  }, [handleLoadCharacter]);
 
   const getGreetingsArray = () => greetings.map((g) => g.value).filter((v) => v.trim() !== '');
 
@@ -890,7 +890,7 @@ export const MainPopup: FC = () => {
             <STButton 
               onClick={handleLoadCurrentChar} 
               title="Load the character from the currently open chat"
-              disabled={selected_group !== undefined || this_chid === undefined}
+              disabled={!!selected_group || this_chid === undefined}
             >
               Current Char
             </STButton>
