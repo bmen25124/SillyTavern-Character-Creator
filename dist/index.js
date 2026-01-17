@@ -11837,7 +11837,7 @@ ${ue.extra.title}`), {
     if (!it)
       return console.warn(`Preset not found: ${i}. Using current preset.`), ae.push(`Preset not found: ${i}. Using current preset.`), Fe(), { result: le.getMessages(), warnings: ae };
     let Ar = (x = it.prompt_order) == null ? void 0 : x.find((Zt) => Zt.character_id === vn);
-    if (!Ar && it.prompt_order && it.prompt_order.length > 0 && (Ar = it.prompt_order[0]), !Ar)
+    if (!Ar && it.prompt_order && it.prompt_order.length > 0 && (Ar = it.prompt_order[it.prompt_order.length - 1]), !Ar)
       return console.warn(`No prompt order found for preset: ${i}. Using current preset.`), ae.push(`No prompt order found for preset: ${i}. Using current preset.`), Fe(), { result: le.getMessages(), warnings: ae };
     const er = de && it.scenario_format ? B.substituteParams(it.scenario_format) : "", mt = $ && it.personality_format ? B.substituteParams(it.personality_format) : "", qn = B.substituteParams(it.group_nudge_prompt), qt = it.impersonation_prompt ? B.substituteParams(it.impersonation_prompt) : "", yn = [];
     y || yn.push(
