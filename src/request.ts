@@ -22,6 +22,12 @@ async function makeRequest(
   const stream = !overridePayload.json_schema && !!streamCallbacks;
   let previousText = '';
 
+  // Sanitize messages to only include role and content fields that the API expects
+  const sanitizedPrompt: Message[] = prompt.map((msg) => ({
+    role: msg.role,
+    content: msg.content,
+  }));
+
   return new Promise((resolve, reject) => {
     const abortController = new AbortController();
 
@@ -33,7 +39,7 @@ async function makeRequest(
     generator.generateRequest(
       {
         profileId,
-        prompt,
+        prompt: sanitizedPrompt,
         maxTokens,
         custom: { stream, signal: combinedSignal },
         overridePayload,
