@@ -23,10 +23,10 @@ async function makeRequest(
   let previousText = '';
 
   // Sanitize messages to only include role and content fields that the API expects
-  const sanitizedPrompt: Message[] = prompt.map((msg) => ({
-    role: msg.role,
-    content: msg.content,
-  }));
+  // Use JSON parse/stringify to ensure completely clean objects with no extra properties
+  const sanitizedPrompt: Message[] = prompt.map((msg) =>
+    JSON.parse(JSON.stringify({ role: msg.role, content: msg.content })),
+  );
 
   return new Promise((resolve, reject) => {
     const abortController = new AbortController();

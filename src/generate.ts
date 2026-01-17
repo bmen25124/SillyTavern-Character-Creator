@@ -258,10 +258,10 @@ export async function runCharacterFieldGeneration({
   }
 
   // Sanitize messages to only include role and content fields that the API expects
-  const sanitizedMessages: Message[] = messages.map((msg) => ({
-    role: msg.role,
-    content: msg.content,
-  }));
+  // Use JSON parse/stringify to ensure completely clean objects with no extra properties
+  const sanitizedMessages: Message[] = messages.map((msg) =>
+    JSON.parse(JSON.stringify({ role: msg.role, content: msg.content })),
+  );
 
   const response = (await globalContext.ConnectionManagerRequestService.sendRequest(
     profileId,
