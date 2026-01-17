@@ -257,9 +257,15 @@ export async function runCharacterFieldGeneration({
     }
   }
 
+  // Sanitize messages to only include role and content fields that the API expects
+  const sanitizedMessages: Message[] = messages.map((msg) => ({
+    role: msg.role,
+    content: msg.content,
+  }));
+
   const response = (await globalContext.ConnectionManagerRequestService.sendRequest(
     profileId,
-    messages,
+    sanitizedMessages,
     maxResponseToken,
   )) as ExtractedData;
 
