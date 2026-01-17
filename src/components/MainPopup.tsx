@@ -948,6 +948,7 @@ export const MainPopup: FC = () => {
                   onGenerate={(i) => handleGenerate(`alternate_greetings_${i + 1}`)}
                   onContinue={(i) => handleGenerate(`alternate_greetings_${i + 1}`, greetings[i].value)}
                   onCompare={handleCompare}
+                  onOpenReviseSessions={handleOpenReviseSessions}
                 />
               </div>
             )}

@@ -14,6 +14,7 @@ interface AlternateGreetingsProps {
   onGenerate: (greetingIndex: number) => void;
   onContinue: (greetingIndex: number) => void;
   onCompare: (greetingIndex: number) => void;
+  onOpenReviseSessions?: (fieldId: string) => void;
   isGenerating: boolean;
 }
 
@@ -23,6 +24,7 @@ export const AlternateGreetings: FC<AlternateGreetingsProps> = ({
   onGenerate,
   onContinue,
   onCompare,
+  onOpenReviseSessions,
   isGenerating,
 }) => {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
@@ -123,6 +125,15 @@ export const AlternateGreetings: FC<AlternateGreetingsProps> = ({
             <STButton onClick={() => onCompare(activeTabIndex)} disabled={isGenerating} title="Compare greeting">
               <i className="fa-solid fa-code-compare"></i>
             </STButton>
+            {onOpenReviseSessions && (
+              <STButton
+                onClick={() => onOpenReviseSessions(`alternate_greetings_${activeTabIndex + 1}`)}
+                disabled={isGenerating}
+                title="Revise with AI chat"
+              >
+                <i className="fa-solid fa-comments"></i>
+              </STButton>
+            )}
             <STButton
               onClick={handleDeleteGreeting}
               disabled={isGenerating}
