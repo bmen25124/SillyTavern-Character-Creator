@@ -93,7 +93,7 @@ export async function runCharacterFieldGeneration({
     throw new Error(`Connection profile with ID "${profileId}" not found.`);
   }
 
-  const selectedApi = profile.api ? globalContext.CONNECT_API_MAP[profile.api].selected : undefined;
+  const selectedApi = profile.api ? globalContext.CONNECT_API_MAP?.[profile.api]?.selected : undefined;
   if (!selectedApi) {
     throw new Error(`Could not determine API for profile "${profile.name}".`);
   }

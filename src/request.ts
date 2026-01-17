@@ -67,8 +67,7 @@ async function makeRequest(
             }
             return reject(new DOMException('Request aborted by user', 'AbortError'));
           }
-          if (!data) reject(new Error('No data received from LLM'));
-          if (error) return reject(error);
+          if (!data) return reject(new Error('No data received from LLM'));
           return streamCallbacks ? resolve({ content: previousText }) : resolve(data as ExtractedData);
         },
       },

@@ -354,7 +354,7 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
         const profile = globalContext.extensionSettings.connectionManager?.profiles?.find(
           (p: any) => p.id === session.profileId,
         );
-        const selectedApi = profile?.api ? globalContext.CONNECT_API_MAP[profile.api].selected : undefined;
+        const selectedApi = profile?.api ? globalContext.CONNECT_API_MAP?.[profile.api]?.selected : undefined;
         if (!selectedApi) {
           st_echo('warning', 'No API selected for this session.');
           return;
