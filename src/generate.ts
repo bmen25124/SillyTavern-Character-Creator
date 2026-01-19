@@ -93,7 +93,7 @@ export async function runCharacterFieldGeneration({
     throw new Error(`Connection profile with ID "${profileId}" not found.`);
   }
 
-  const selectedApi = profile.api ? globalContext.CONNECT_API_MAP[profile.api].selected : undefined;
+  const selectedApi = profile.api ? globalContext.CONNECT_API_MAP?.[profile.api]?.selected : undefined;
   if (!selectedApi) {
     throw new Error(`Could not determine API for profile "${profile.name}".`);
   }
@@ -257,9 +257,15 @@ export async function runCharacterFieldGeneration({
     }
   }
 
+  // Sanitize messages to only include role and content fields that the API expects
+  // Use JSON parse/stringify to ensure completely clean objects with no extra properties
+  const sanitizedMessages: Message[] = messages.map((msg) =>
+    JSON.parse(JSON.stringify({ role: msg.role, content: msg.content })),
+  );
+
   const response = (await globalContext.ConnectionManagerRequestService.sendRequest(
     profileId,
-    messages,
+    sanitizedMessages,
     maxResponseToken,
   )) as ExtractedData;
 

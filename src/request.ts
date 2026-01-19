@@ -22,6 +22,12 @@ async function makeRequest(
   const stream = !overridePayload.json_schema && !!streamCallbacks;
   let previousText = '';
 
+  // Sanitize messages to only include role and content fields that the API expects
+  // Use JSON parse/stringify to ensure completely clean objects with no extra properties
+  const sanitizedPrompt: Message[] = prompt.map((msg) =>
+    JSON.parse(JSON.stringify({ role: msg.role, content: msg.content })),
+  );
+
   return new Promise((resolve, reject) => {
     const abortController = new AbortController();
 
@@ -33,7 +39,7 @@ async function makeRequest(
     generator.generateRequest(
       {
         profileId,
-        prompt,
+        prompt: sanitizedPrompt,
         maxTokens,
         custom: { stream, signal: combinedSignal },
         overridePayload,
@@ -61,8 +67,7 @@ async function makeRequest(
             }
             return reject(new DOMException('Request aborted by user', 'AbortError'));
           }
-          if (!data) reject(new Error('No data received from LLM'));
-          if (error) return reject(error);
+          if (!data) return reject(new Error('No data received from LLM'));
           return streamCallbacks ? resolve({ content: previousText }) : resolve(data as ExtractedData);
         },
       },
