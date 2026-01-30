@@ -424,6 +424,16 @@ export const MainPopup: FC = () => {
     [allCharacters, session.fields, handleGreetingsChange],
   );
 
+  const handleLoadCurrentChar = useCallback(async () => {
+    if (selected_group) {
+      return st_echo('warning', 'Cannot load current character in a group chat.');
+    }
+    if (this_chid === undefined) {
+      return st_echo('warning', 'No character chat is currently open.');
+    }
+    await handleLoadCharacter(String(this_chid));
+  }, [handleLoadCharacter]);
+
   const getGreetingsArray = () => greetings.map((g) => g.value).filter((v) => v.trim() !== '');
 
   const handleSaveAsNew = async () => {
@@ -876,6 +886,13 @@ export const MainPopup: FC = () => {
             )}
             <STButton onClick={handleReset}>
               <i className="fa-solid fa-rotate-left" style={{ marginRight: '10px' }}></i>Reset Fields
+            </STButton>
+            <STButton 
+              onClick={handleLoadCurrentChar} 
+              title="Load the character from the currently open chat"
+              disabled={!!selected_group || this_chid === undefined}
+            >
+              Current Char
             </STButton>
             <div style={{ width: '200px' }} title="Load Character Data">
               <STFancyDropdown
