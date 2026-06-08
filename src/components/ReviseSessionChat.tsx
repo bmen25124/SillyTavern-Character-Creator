@@ -20,6 +20,7 @@ import { CurrentStatePopup } from './CurrentStatePopup.js';
 import { CHARACTER_FIELDS } from '../generate.js';
 import { BuildPromptOptions, buildPrompt } from 'sillytavern-utils-lib';
 import * as Handlebars from 'handlebars';
+import '../handlebars-helpers.js';
 
 const globalContext = SillyTavern.getContext();
 

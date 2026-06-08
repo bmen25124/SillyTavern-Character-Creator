@@ -1,4 +1,5 @@
 import * as Handlebars from 'handlebars';
+import './handlebars-helpers.js';
 import { CharacterState, ReviseMessage, CHAT_HISTORY_PLACEHOLDER_ID } from './revise-types.js';
 import { ExtensionSettings, settingsManager } from './settings.js';
 import { Session, globalContext } from './generate.js';

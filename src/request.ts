@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { st_echo } from 'sillytavern-utils-lib/config';
 import { PromptEngineeringMode, settingsManager } from './settings.js';
 import * as Handlebars from 'handlebars';
+import './handlebars-helpers.js';
 import { schemaToExample } from './schema-to-example.js';
 import { parseResponse } from './parsers.js';
 

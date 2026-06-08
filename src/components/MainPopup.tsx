@@ -15,6 +15,7 @@ import { POPUP_TYPE } from 'sillytavern-utils-lib/types/popup';
 import { Character, FullExportData } from 'sillytavern-utils-lib/types';
 import { WIEntry } from 'sillytavern-utils-lib/types/world-info';
 import * as Handlebars from 'handlebars';
+import '../handlebars-helpers.js';
 
 import { runCharacterFieldGeneration, Session, CHARACTER_FIELDS, CHARACTER_LABELS } from '../generate.js';
 import { ExtensionSettings, settingsManager, convertToVariableName, VERSION } from '../settings.js';
@@ -24,39 +25,6 @@ import { AlternateGreetings, Greeting } from './AlternateGreetings.js';
 import { CompareFieldPopup } from './CompareFieldPopup.js';
 import { CharacterState, ReviseSessionType } from '../revise-types.js';
 import { ReviseSessionManager } from './ReviseSessionManager.js';
-
-if (!Handlebars.helpers['add']) {
-  Handlebars.registerHelper('add', function (a: any, b: any) {
-    return Number(a) + Number(b);
-  });
-}
-
-if (!Handlebars.helpers['join']) {
-  Handlebars.registerHelper('join', function (array: any, separator: any) {
-    if (Array.isArray(array)) {
-      return array.join(typeof separator === 'string' ? separator : ', ');
-    }
-    return '';
-  });
-}
-
-if (!Handlebars.helpers['is_not_empty']) {
-  Handlebars.registerHelper('is_not_empty', function (this: any, value, options) {
-    if (!value) {
-      return options.inverse(this);
-    }
-    if (Array.isArray(value)) {
-      return value.length > 0 ? options.fn(this) : options.inverse(this);
-    }
-    if (typeof value === 'object' && Object.keys(value).length > 0) {
-      return options.fn(this);
-    }
-    if (typeof value !== 'object' && !Array.isArray(value)) {
-      return options.fn(this);
-    }
-    return options.inverse(this);
-  });
-}
 
 const globalContext = SillyTavern.getContext();
 const SESSION_KEY = 'charCreator';

@@ -7,6 +7,7 @@ import { name1, st_echo } from 'sillytavern-utils-lib/config';
 import { ExtensionSettings, MessageRole, OutputFormat, settingsManager } from './settings.js';
 
 import * as Handlebars from 'handlebars';
+import './handlebars-helpers.js';
 
 export const globalContext = SillyTavern.getContext();
 
