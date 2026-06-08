@@ -44,15 +44,47 @@ function ensureArray(data: any, schema: any) {
   }
 }
 
+function extractLastCodeBlock(content: string): string | null {
+  const codeBlockRegex = /```(?:\w+\n|\n)?([\s\S]*?)```/g;
+  let match: RegExpExecArray | null;
+  let lastMatch: string | null = null;
+
+  while ((match = codeBlockRegex.exec(content)) !== null) {
+    lastMatch = match[1].trim();
+  }
+
+  return lastMatch;
+}
+
+function extractStringValue(data: any): string {
+  if (data === null || data === undefined) {
+    return '';
+  }
+  if (typeof data !== 'object') {
+    return String(data).trim();
+  }
+  if ('#text' in data) {
+    return extractStringValue(data['#text']);
+  }
+  if ('response' in data) {
+    return extractStringValue(data.response);
+  }
+  if ('message' in data) {
+    return extractStringValue(data.message);
+  }
+
+  const firstValue = Object.values(data)[0];
+  return extractStringValue(firstValue);
+}
+
 export function parseResponse(
   content: string,
   format: 'xml' | 'json' | 'none',
   options: ParseOptions = {},
 ): object | string {
   // Extract content from inside code blocks, handling language identifiers
-  const codeBlockRegex = /```(?:\w+\n|\n)?([\s\S]*?)```/;
-  const codeBlockMatch = content.match(codeBlockRegex);
-  let cleanedContent = codeBlockMatch ? codeBlockMatch[1].trim() : content.trim();
+  const codeBlockContent = extractLastCodeBlock(content);
+  let cleanedContent = codeBlockContent ?? content.trim();
 
   try {
     switch (format) {
@@ -71,16 +103,17 @@ export function parseResponse(
           parsedXml = parsedXml.root;
         } else if (parsedXml.response) {
           // Handle simple <response> tag for single-field generation
-          return parsedXml.response;
+          return extractStringValue(parsedXml.response);
         }
         if (options.schema) {
           ensureArray(parsedXml, options.schema);
+          return parsedXml;
         }
-        return parsedXml;
+        return extractStringValue(parsedXml);
 
       case 'json':
         const parsedJson = JSON.parse(cleanedContent);
-        return parsedJson;
+        return options.schema ? parsedJson : extractStringValue(parsedJson);
 
       case 'none':
         return cleanedContent;
@@ -93,10 +126,9 @@ export function parseResponse(
     // For single-field generation, we can often just return the cleaned text.
     if (format !== 'none' && !options.schema) {
       const responseMatch = cleanedContent.match(/<response>([\s\S]*)/);
-      if (responseMatch) return responseMatch[1];
+      if (responseMatch) return responseMatch[1].replace(/<\/[\s\S]*$/, '').trim();
       const jsonMatch = cleanedContent.match(/"response":\s*"([\s\S]*)/);
       if (jsonMatch) return jsonMatch[1].replace(/"\s*}\s*$/, '');
-      return cleanedContent; // Fallback to raw cleaned content
     }
 
     console.error(`Error parsing response in format '${format}':`, error);

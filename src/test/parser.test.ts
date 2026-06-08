@@ -17,6 +17,22 @@ describe('parseResponse with JSON format', () => {
     expect(parseResponse(input, 'json')).toBe('test message');
   });
 
+  test('extracts JSON from the last fenced code block', () => {
+    const input = [
+      '<think>',
+      'I should respond like this:',
+      '```json',
+      '{"response": "Example Name"}',
+      '```',
+      '</think>',
+      '```json',
+      '{"response": "Mr Nice Guy"}',
+      '```',
+    ].join('\n');
+
+    expect(parseResponse(input, 'json')).toBe('Mr Nice Guy');
+  });
+
   test('throws error on invalid JSON', () => {
     const input = '{"response": invalid}';
     expect(() => parseResponse(input, 'json')).toThrow('Model response is not valid JSON');
@@ -66,6 +82,22 @@ describe('parseResponse with XML format', () => {
 
     const input2 = '```\n<response>test message</response>\n```';
     expect(parseResponse(input2, 'xml')).toBe('test message');
+  });
+
+  test('extracts XML from the last fenced code block', () => {
+    const input = [
+      '<think>',
+      'The answer should look like this:',
+      '```xml',
+      '<response>Example Name</response>',
+      '```',
+      '</think>',
+      '```xml',
+      '<response>Mr Nice Guy</response>',
+      '```',
+    ].join('\n');
+
+    expect(parseResponse(input, 'xml')).toBe('Mr Nice Guy');
   });
 
   test('Parse half-valid XML', () => {
