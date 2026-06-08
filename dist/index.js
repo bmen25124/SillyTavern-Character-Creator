@@ -13398,9 +13398,9 @@ This is a "style guide" that teaches the AI *how* your character speaks, thinks,
 #### Example Dialogue
 {{this.mes_example}}
 {{/if}}
-{{#if this.alternate_greetings}}
+{{#if this.data.alternate_greetings}}
 #### Alternate Greetings
-{{#each this.alternate_greetings}}
+{{#each this.data.alternate_greetings}}
 ### {{add @index 1}}
 {{this}}
 {{/each}}
@@ -23826,7 +23826,19 @@ const lu = SillyTavern.getContext(), Jy = "charCreator_reviseSessions", OA = ({
       " New Session"
     ] }) })
   ] });
-}, Nn = SillyTavern.getContext(), Wy = "charCreator", Sh = () => ({
+};
+function NA(t, r) {
+  return {
+    name: t.name?.value ?? "",
+    description: t.description?.value ?? "",
+    personality: t.personality?.value ?? "",
+    scenario: t.scenario?.value ?? "",
+    first_mes: t.first_mes?.value ?? "",
+    mes_example: t.mes_example?.value ?? "",
+    alternate_greetings: r.map((i) => i.value).filter(Boolean)
+  };
+}
+const Nn = SillyTavern.getContext(), Wy = "charCreator", Sh = () => ({
   selectedCharacterIndexes: vn ? [String(vn)] : [],
   selectedWorldNames: [],
   fields: Qn.reduce(
@@ -23835,14 +23847,14 @@ const lu = SillyTavern.getContext(), Jy = "charCreator_reviseSessions", OA = ({
   ),
   draftFields: {},
   lastLoadedCharacterId: ""
-}), NA = {
+}), DA = {
   name: { label: br.name, rows: 1, large: !1, promptEnabled: !1 },
   description: { label: br.description, rows: 5, large: !0, promptEnabled: !0 },
   personality: { label: br.personality, rows: 4, large: !0, promptEnabled: !0 },
   scenario: { label: br.scenario, rows: 3, large: !0, promptEnabled: !0 },
   first_mes: { label: br.first_mes, rows: 3, large: !0, promptEnabled: !0 },
   mes_example: { label: br.mes_example, rows: 6, large: !0, promptEnabled: !0 }
-}, DA = () => {
+}, MA = () => {
   const t = Y0(), r = Lt.getSettings(), [i, s] = te.useState(Sh()), [o, u] = te.useState([]), [h, p] = te.useState(!0), [d, g] = te.useState("core"), [y, b] = te.useState([]), [_, v] = te.useState([]), [f, S] = te.useState(null), [x, O] = te.useState(null), [w, D] = te.useState(!1), [E, T] = te.useState(null);
   te.useEffect(() => {
     (async () => {
@@ -24456,7 +24468,7 @@ const lu = SillyTavern.getContext(), Jy = "charCreator_reviseSessions", OA = ({
                 if (!i.fields.name.value)
                   return Ne("warning", "Please enter a name first."), !1;
                 const ne = K[0], Be = en.compile(r.prompts.worldInfoCharDefinition.content)({
-                  character: { ...i.fields, alternate_greetings: G.map((Te) => Te.value) }
+                  character: NA(i.fields, G)
                 }), ze = {
                   uid: -1,
                   key: [i.fields.name.value],
@@ -24520,7 +24532,7 @@ const lu = SillyTavern.getContext(), Jy = "charCreator_reviseSessions", OA = ({
           d === "core" && /* @__PURE__ */ A.jsxs("div", { className: "card tab-content active", children: [
             /* @__PURE__ */ A.jsx("h3", { children: "Core Character Fields" }),
             Qn.map((P) => {
-              const K = NA[P];
+              const K = DA[P];
               return K ? /* @__PURE__ */ A.jsx(
                 Cy,
                 {
@@ -24619,12 +24631,12 @@ const lu = SillyTavern.getContext(), Jy = "charCreator_reviseSessions", OA = ({
       }
     )
   ] });
-}, MA = () => {
+}, kA = () => {
   const [t, r] = te.useState(!1), i = () => r(!0), s = () => r(!1);
   return window.openCharacterCreatorPopup = i, t ? /* @__PURE__ */ A.jsx(
     Li,
     {
-      content: /* @__PURE__ */ A.jsx(DA, {}),
+      content: /* @__PURE__ */ A.jsx(MA, {}),
       type: gn.DISPLAY,
       onComplete: s,
       options: {
@@ -24634,7 +24646,7 @@ const lu = SillyTavern.getContext(), Jy = "charCreator_reviseSessions", OA = ({
     }
   ) : null;
 }, C1 = SillyTavern.getContext();
-async function kA() {
+async function RA() {
   const t = await C1.renderExtensionTemplateAsync(
     `third-party/${Ma}`,
     "templates/settings"
@@ -24650,7 +24662,7 @@ async function kA() {
     document.querySelector("#rm_buttons_container") ?? document.querySelector("#form_character_search_form")
   ], u = document.createElement("div");
   document.body.appendChild(u), dv.createRoot(u).render(
-    /* @__PURE__ */ A.jsx(du.StrictMode, { children: /* @__PURE__ */ A.jsx(MA, {}) })
+    /* @__PURE__ */ A.jsx(du.StrictMode, { children: /* @__PURE__ */ A.jsx(kA, {}) })
   ), o.forEach((p) => {
     if (!p) return;
     const d = document.createElement("div");
@@ -24661,12 +24673,12 @@ async function kA() {
     }));
   });
 }
-function RA() {
+function jA() {
   return !!C1.ConnectionManagerRequestService;
 }
-RA() ? jE().then(() => {
-  kA();
+jA() ? jE().then(() => {
+  RA();
 }) : Ne("error", `[${Ma}] Make sure ST is updated.`);
 export {
-  kA as init
+  RA as init
 };

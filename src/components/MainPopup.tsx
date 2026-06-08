@@ -25,6 +25,7 @@ import { AlternateGreetings, Greeting } from './AlternateGreetings.js';
 import { CompareFieldPopup } from './CompareFieldPopup.js';
 import { CharacterState, ReviseSessionType } from '../revise-types.js';
 import { ReviseSessionManager } from './ReviseSessionManager.js';
+import { buildWorldInfoCharacter } from '../world-info-export.js';
 
 const globalContext = SillyTavern.getContext();
 const SESSION_KEY = 'charCreator';
@@ -822,7 +823,7 @@ export const MainPopup: FC = () => {
                   const worldName = proposed[0];
                   const template = Handlebars.compile(settings.prompts.worldInfoCharDefinition.content);
                   const content = template({
-                    character: { ...session.fields, alternate_greetings: greetings.map((g) => g.value) },
+                    character: buildWorldInfoCharacter(session.fields, greetings),
                   });
                   const entry: WIEntry = {
                     uid: -1,

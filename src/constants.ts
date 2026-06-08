@@ -119,9 +119,9 @@ export const DEFAULT_CHAR_CARD_DEFINITION_TEMPLATE = `{{#if characters}}
 #### Example Dialogue
 {{this.mes_example}}
 {{/if}}
-{{#if this.alternate_greetings}}
+{{#if this.data.alternate_greetings}}
 #### Alternate Greetings
-{{#each this.alternate_greetings}}
+{{#each this.data.alternate_greetings}}
 ### {{add @index 1}}
 {{this}}
 {{/each}}
