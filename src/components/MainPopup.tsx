@@ -27,6 +27,7 @@ import { CharacterState, ReviseSessionType } from '../revise-types.js';
 import { ReviseSessionManager } from './ReviseSessionManager.js';
 import { buildWorldInfoCharacter } from '../world-info-export.js';
 import { buildWorldInfoDropdownItems } from '../world-info-selection.js';
+import { getWorldInfoEntries } from '../world-info-entries.js';
 
 const globalContext = SillyTavern.getContext();
 const SESSION_KEY = 'charCreator';
@@ -278,7 +279,7 @@ export const MainPopup: FC = () => {
             .map(async (name: string) => {
               const worldInfo = await globalContext.loadWorldInfo(name);
               if (worldInfo) {
-                entriesGroupByWorldName[name] = Object.values(worldInfo.entries);
+                entriesGroupByWorldName[name] = getWorldInfoEntries(worldInfo, { includeDisabled: true });
               }
             }),
         );
