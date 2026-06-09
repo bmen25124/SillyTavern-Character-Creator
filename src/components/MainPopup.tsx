@@ -26,6 +26,7 @@ import { CompareFieldPopup } from './CompareFieldPopup.js';
 import { CharacterState, ReviseSessionType } from '../revise-types.js';
 import { ReviseSessionManager } from './ReviseSessionManager.js';
 import { buildWorldInfoCharacter } from '../world-info-export.js';
+import { buildWorldInfoDropdownItems } from '../world-info-selection.js';
 
 const globalContext = SillyTavern.getContext();
 const SESSION_KEY = 'charCreator';
@@ -510,6 +511,10 @@ export const MainPopup: FC = () => {
     (): DropdownItem[] => allWorldNames.map((n) => ({ value: n, label: n })),
     [allWorldNames],
   );
+  const selectableWorldInfoDropdownItems = useMemo(
+    (): DropdownItem[] => buildWorldInfoDropdownItems(allWorldNames, session.selectedWorldNames),
+    [allWorldNames, session.selectedWorldNames],
+  );
   const promptPresetItems = useMemo(
     (): PresetItem[] => Object.keys(settings.promptPresets).map((k) => ({ value: k, label: k })),
     [settings.promptPresets],
@@ -681,7 +686,7 @@ export const MainPopup: FC = () => {
               </label>
               {settings.contextToSend.worldInfo && (
                 <STFancyDropdown
-                  items={worldInfoDropdownItems}
+                  items={selectableWorldInfoDropdownItems}
                   value={session.selectedWorldNames}
                   onChange={(v) => setSession((s) => ({ ...s, selectedWorldNames: v }))}
                   multiple
