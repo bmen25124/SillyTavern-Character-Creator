@@ -28,9 +28,9 @@ import { ReviseSessionManager } from './ReviseSessionManager.js';
 import { buildWorldInfoCharacter } from '../world-info-export.js';
 import { buildWorldInfoDropdownItems } from '../world-info-selection.js';
 import { getWorldInfoEntries } from '../world-info-entries.js';
+import { loadCharacterSession, saveCharacterSession } from '../browser-storage.js';
 
 const globalContext = SillyTavern.getContext();
-const SESSION_KEY = 'charCreator';
 
 // A default, empty session structure
 const createDefaultSession = (): Session => ({
@@ -83,7 +83,7 @@ export const MainPopup: FC = () => {
       setIsLoading(true);
       setAllCharacters(globalContext.characters);
       setAllWorldNames(world_names);
-      const savedSession: Partial<Session> = JSON.parse(localStorage.getItem(SESSION_KEY) ?? '{}');
+      const savedSession = (await loadCharacterSession()).value ?? {};
       const initialSession = createDefaultSession();
       if (savedSession.fields) initialSession.fields = { ...initialSession.fields, ...savedSession.fields };
       if (savedSession.draftFields) initialSession.draftFields = savedSession.draftFields;
@@ -102,7 +102,14 @@ export const MainPopup: FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!isLoading) localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    if (!isLoading) {
+      saveCharacterSession(session).then((result) => {
+        if (!result.persisted) {
+          console.warn('Failed to save Character Creator session:', result.error);
+          st_echo('warning', 'Character Creator session could not be saved. Browser storage may be full.');
+        }
+      });
+    }
   }, [session, isLoading]);
 
   // --- Generic Setting Handlers ---
