@@ -19,8 +19,8 @@ import { POPUP_TYPE } from 'sillytavern-utils-lib/types/popup';
 import { CurrentStatePopup } from './CurrentStatePopup.js';
 import { CHARACTER_FIELDS } from '../generate.js';
 import { BuildPromptOptions, buildPrompt } from 'sillytavern-utils-lib';
-import * as Handlebars from 'handlebars';
-import '../handlebars-helpers.js';
+import { protectMacros, renderPrompt } from '../prompt-render.js';
+import { buildFieldList } from '../field-list.js';
 
 const globalContext = SillyTavern.getContext();
 
@@ -276,6 +276,8 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
         alternate_greetings: Record<string, string>;
         draft: Record<string, string>;
       } = { core: {}, alternate_greetings: {}, draft: {} };
+      const changedFields: CharacterState['fields'] = {};
+      const changedDraftFields: CharacterState['draftFields'] = {};
 
       const allFieldKeys = new Set([...Object.keys(lastState.fields), ...Object.keys(newState.fields)]);
       allFieldKeys.forEach((key) => {
@@ -284,6 +286,7 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
         if (oldValue !== newValue) {
           const field = newState.fields[key];
           if (field) {
+            changedFields[key] = field;
             if (key.startsWith('alternate_greetings_')) {
               changedFieldsData.alternate_greetings[field.label] = field.value;
             } else if (CHARACTER_FIELDS.includes(key as any)) {
@@ -301,6 +304,7 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
           if (newState.draftFields[key]) {
             const field = newState.draftFields[key];
             changedFieldsData.draft[field.label] = field.value;
+            changedDraftFields[key] = field;
           }
         }
       });
@@ -314,9 +318,11 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
         return currentMessages;
       }
 
-      const templateData = { fields: changedFieldsData };
-      let content = Handlebars.compile(existingFieldsTemplate.content, { noEscape: true })(templateData);
-      content = globalContext.substituteParams(content);
+      const templateData = {
+        fields: protectMacros(changedFieldsData),
+        fieldList: protectMacros(buildFieldList(changedFields, changedDraftFields)),
+      };
+      const content = renderPrompt(existingFieldsTemplate.content, templateData, globalContext.substituteParams);
 
       if (content.trim()) {
         const stateUpdateMessage: ReviseMessage = {
@@ -383,7 +389,7 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
         const existingFieldsTemplate = settings.prompts.existingFieldDefinitions;
         if (existingFieldsTemplate) {
           const templateData = {
-            fields: {
+            fields: protectMacros({
               core: Object.fromEntries(
                 Object.entries(lastState.fields)
                   .filter(([k]) => !k.startsWith('alternate_greetings_'))
@@ -395,11 +401,11 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
                   .map(([, v]) => [v.label, v.value]),
               ),
               draft: Object.fromEntries(Object.entries(lastState.draftFields).map(([, v]) => [v.label, v.value])),
-            },
+            }),
+            fieldList: protectMacros(buildFieldList(lastState.fields, lastState.draftFields)),
           };
 
-          let content = Handlebars.compile(existingFieldsTemplate.content, { noEscape: true })(templateData);
-          content = globalContext.substituteParams(content);
+          const content = renderPrompt(existingFieldsTemplate.content, templateData, globalContext.substituteParams);
 
           if (content.trim()) {
             const stateMessage: ReviseMessage = {

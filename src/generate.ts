@@ -8,19 +8,12 @@ import { ExtensionSettings, MessageRole, OutputFormat, settingsManager } from '.
 
 import * as Handlebars from 'handlebars';
 import './handlebars-helpers.js';
+import { protectMacros, renderPrompt } from './prompt-render.js';
+import { buildFieldList, CHARACTER_FIELDS, CharacterFieldName, getFieldLabel, selectSentFields } from './field-list.js';
 
 export const globalContext = SillyTavern.getContext();
 
-export type CharacterFieldName = 'name' | 'description' | 'personality' | 'scenario' | 'first_mes' | 'mes_example';
-
-export const CHARACTER_FIELDS: CharacterFieldName[] = [
-  'name',
-  'description',
-  'personality',
-  'scenario',
-  'first_mes',
-  'mes_example',
-];
+export { CHARACTER_FIELDS, type CharacterFieldName };
 
 export const CHARACTER_LABELS: Record<CharacterFieldName, string> = {
   name: 'Name',
@@ -101,20 +94,17 @@ export async function runCharacterFieldGeneration({
 
   const templateData: Record<string, any> = {};
 
-  templateData['char'] = session.fields.name.value ?? '{{char}}';
+  templateData['char'] = protectMacros(session.fields.name.value) || '{{char}}';
   templateData['user'] = includeUserMacro && name1 ? name1 : '{{user}}';
   templateData['persona'] = '{{persona}}'; // ST going to replace this with the actual persona description
 
   templateData['targetField'] = targetField;
-  templateData['userInstructions'] = Handlebars.compile(userPrompt.trim(), { noEscape: true })(templateData);
-  templateData['fieldSpecificInstructions'] = Handlebars.compile(
+  // User-authored content is sent verbatim, see prompt-render.ts
+  templateData['targetLabel'] = protectMacros(getFieldLabel(targetField, session.fields, session.draftFields));
+  templateData['userInstructions'] = protectMacros(userPrompt.trim());
+  templateData['fieldSpecificInstructions'] = protectMacros(
     session.draftFields[targetField]?.prompt ?? session.fields[targetField as CharacterFieldName]?.prompt,
-    { noEscape: true },
-  )({
-    ...templateData,
-    char: targetField === 'mes_example' ? '{{char}}' : templateData.char,
-    user: targetField === 'mes_example' ? '{{user}}' : templateData.user,
-  });
+  );
   templateData['activeFormatInstructions'] = Handlebars.compile(formatDescription.content, { noEscape: true })(
     templateData,
   );
@@ -130,7 +120,7 @@ export async function runCharacterFieldGeneration({
       }
     });
 
-    templateData['characters'] = charactersData;
+    templateData['characters'] = protectMacros(charactersData);
   }
 
   // Add Definitions of Selected Lorebooks (World Info)
@@ -147,7 +137,7 @@ export async function runCharacterFieldGeneration({
         lorebooksData[worldName] = entries.filter((entry) => !entry.disable);
       });
 
-    templateData['lorebooks'] = lorebooksData;
+    templateData['lorebooks'] = protectMacros(lorebooksData);
   }
 
   // Add Current Field Values (if enabled)
@@ -157,43 +147,19 @@ export async function runCharacterFieldGeneration({
     const alternateGreetingsFields: Record<string, string> = {};
     const draftFields: Record<string, string> = {};
 
-    const isTargetAlternateGreeting = targetField.startsWith('alternate_greetings_');
     const dontSendOtherGreetings = settingsManager.getSettings().contextToSend.dontSendOtherGreetings;
+    const sentFields = selectSentFields(session.fields, targetField, dontSendOtherGreetings);
 
-    Object.entries(session.fields).forEach(([fieldName, field]) => {
-      // There are 2 case.
-      // 1. If the target is non-alternate greeting, we send all fields except alternate greetings.
-      // 2. If the target is alternate greeting, we send only the target field and skip all other alternate greetings. We also skip the first message field in this case.
-      let shouldSkip = false;
-      if (dontSendOtherGreetings) {
-        const isAlternateGreeting = fieldName.startsWith('alternate_greetings_');
-        if (isTargetAlternateGreeting) {
-          // If the target is an alternate greeting, skip all other alternate greetings and first message
-          shouldSkip = (isAlternateGreeting && fieldName !== targetField) || fieldName === 'first_mes';
-        } else {
-          // If the target is not an alternate greeting, skip all alternate greetings and first message
-          shouldSkip = isAlternateGreeting;
-        }
-      }
-
-      if (!shouldSkip) {
-        const compiledValue = Handlebars.compile(field.value, { noEscape: true })({
-          ...templateData,
-
-          char: fieldName === 'mes_example' ? '{{char}}' : templateData.char,
-          user: fieldName === 'mes_example' ? '{{user}}' : templateData.user,
-        });
-
-        if (CHARACTER_FIELDS.includes(fieldName as CharacterFieldName)) {
-          coreFields[field.label] = compiledValue;
-        } else if (fieldName.startsWith('alternate_greetings_')) {
-          alternateGreetingsFields[fieldName] = compiledValue;
-        }
+    Object.entries(sentFields).forEach(([fieldName, field]) => {
+      if (CHARACTER_FIELDS.includes(fieldName as CharacterFieldName)) {
+        coreFields[field.label] = field.value;
+      } else if (fieldName.startsWith('alternate_greetings_')) {
+        alternateGreetingsFields[fieldName] = field.value;
       }
     });
 
     Object.entries(session.draftFields || {}).forEach(([_fieldName, field]) => {
-      draftFields[field.label] = Handlebars.compile(field.value, { noEscape: true })(templateData);
+      draftFields[field.label] = field.value;
     });
 
     const allFields: Record<string, any> = {};
@@ -207,7 +173,9 @@ export async function runCharacterFieldGeneration({
       allFields.draft = draftFields;
     }
 
-    templateData['fields'] = allFields;
+    templateData['fields'] = protectMacros(allFields);
+    // Every sent field with its ID and label, see FieldListItem in field-list.ts
+    templateData['fieldList'] = protectMacros(buildFieldList(sentFields, session.draftFields));
   }
 
   const messages: Message[] = [];
@@ -237,13 +205,8 @@ export async function runCharacterFieldGeneration({
       }
       const message: Message = {
         role: mainContext.role,
-        content: Handlebars.compile(prompt.content, { noEscape: true })(newTemplateData),
+        content: renderPrompt(prompt.content, newTemplateData, globalContext.substituteParams),
       };
-      message.content = message.content.replaceAll('{{user}}', '[[[crec_veryUniqueUserPlaceHolder]]]');
-      message.content = message.content.replaceAll('{{char}}', '[[[crec_veryUniqueCharPlaceHolder]]]');
-      message.content = globalContext.substituteParams(message.content);
-      message.content = message.content.replaceAll('[[[crec_veryUniqueUserPlaceHolder]]]', '{{user}}');
-      message.content = message.content.replaceAll('[[[crec_veryUniqueCharPlaceHolder]]]', '{{char}}');
       if (message.content) {
         messages.push(message);
       }
