@@ -19,8 +19,7 @@ import { POPUP_TYPE } from 'sillytavern-utils-lib/types/popup';
 import { CurrentStatePopup } from './CurrentStatePopup.js';
 import { CHARACTER_FIELDS } from '../generate.js';
 import { BuildPromptOptions, buildPrompt } from 'sillytavern-utils-lib';
-import * as Handlebars from 'handlebars';
-import '../handlebars-helpers.js';
+import { protectMacros, renderPrompt } from '../prompt-render.js';
 
 const globalContext = SillyTavern.getContext();
 
@@ -314,9 +313,8 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
         return currentMessages;
       }
 
-      const templateData = { fields: changedFieldsData };
-      let content = Handlebars.compile(existingFieldsTemplate.content, { noEscape: true })(templateData);
-      content = globalContext.substituteParams(content);
+      const templateData = { fields: protectMacros(changedFieldsData) };
+      const content = renderPrompt(existingFieldsTemplate.content, templateData, globalContext.substituteParams);
 
       if (content.trim()) {
         const stateUpdateMessage: ReviseMessage = {
@@ -383,7 +381,7 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
         const existingFieldsTemplate = settings.prompts.existingFieldDefinitions;
         if (existingFieldsTemplate) {
           const templateData = {
-            fields: {
+            fields: protectMacros({
               core: Object.fromEntries(
                 Object.entries(lastState.fields)
                   .filter(([k]) => !k.startsWith('alternate_greetings_'))
@@ -395,11 +393,10 @@ export const ReviseSessionChat: FC<ReviseSessionChatProps> = ({
                   .map(([, v]) => [v.label, v.value]),
               ),
               draft: Object.fromEntries(Object.entries(lastState.draftFields).map(([, v]) => [v.label, v.value])),
-            },
+            }),
           };
 
-          let content = Handlebars.compile(existingFieldsTemplate.content, { noEscape: true })(templateData);
-          content = globalContext.substituteParams(content);
+          const content = renderPrompt(existingFieldsTemplate.content, templateData, globalContext.substituteParams);
 
           if (content.trim()) {
             const stateMessage: ReviseMessage = {

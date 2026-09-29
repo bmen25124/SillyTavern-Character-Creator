@@ -1,5 +1,4 @@
-import * as Handlebars from 'handlebars';
-import './handlebars-helpers.js';
+import { protectMacros, renderPrompt } from './prompt-render.js';
 import { CharacterState, ReviseMessage, CHAT_HISTORY_PLACEHOLDER_ID } from './revise-types.js';
 import { ExtensionSettings, settingsManager } from './settings.js';
 import { Session, globalContext } from './generate.js';
@@ -25,13 +24,15 @@ export async function buildInitialReviseMessages(
 
   const resolvedContext = {
     user: globalContext.name1 || 'You',
-    char: initialState.fields.name?.value || 'Character',
-    persona: globalContext.powerUserSettings.persona_description,
+    char: protectMacros(initialState.fields.name?.value) || 'Character',
+    // Resolved up front like ST's {{persona}} macro, since renderPrompt keeps {{char}}/{{user}} literal.
+    persona: globalContext.substituteParams(globalContext.powerUserSettings.persona_description ?? ''),
   };
 
+  // User-authored content is sent verbatim, see prompt-render.ts
   const templateData: Record<string, any> = {
     ...resolvedContext,
-    fields: {
+    fields: protectMacros({
       core: Object.fromEntries(
         Object.entries(initialState.fields)
           .filter(([k]) => !k.startsWith('alternate_greetings_'))
@@ -43,7 +44,7 @@ export async function buildInitialReviseMessages(
           .map(([, v]) => [v.label, v.value]),
       ),
       draft: Object.fromEntries(Object.entries(initialState.draftFields).map(([, v]) => [v.label, v.value])),
-    },
+    }),
   };
 
   // Populate templateData with characters and lorebooks for handlebars evaluation, respecting contextToSend settings.
@@ -55,7 +56,7 @@ export async function buildInitialReviseMessages(
         charactersData.push(char);
       }
     });
-    templateData['characters'] = charactersData;
+    templateData['characters'] = protectMacros(charactersData);
   }
 
   if (contextToSend.worldInfo) {
@@ -68,7 +69,7 @@ export async function buildInitialReviseMessages(
         }
       }),
     );
-    templateData['lorebooks'] = lorebooksData;
+    templateData['lorebooks'] = protectMacros(lorebooksData);
   }
 
   for (const block of preset.prompts) {
@@ -106,10 +107,9 @@ export async function buildInitialReviseMessages(
       continue;
     }
 
-    let content = '';
-    content = Handlebars.compile(promptSetting.content, { noEscape: true })(templateData);
-
-    content = globalContext.substituteParams(content);
+    const blockData =
+      block.promptName === 'stDescription' ? { ...templateData, char: '{{char}}', user: '{{user}}' } : templateData;
+    const content = renderPrompt(promptSetting.content, blockData, globalContext.substituteParams);
 
     if (content.trim()) {
       initialMessages.push({
@@ -126,10 +126,11 @@ export async function buildInitialReviseMessages(
     : 'Global';
 
   const taskDescriptionTemplate = settings.prompts.reviseTaskDescription.content;
-  const taskDescription = Handlebars.compile(taskDescriptionTemplate, { noEscape: true })({
-    isFieldSession: !!targetFieldId,
-    targetLabel,
-  });
+  const taskDescription = renderPrompt(
+    taskDescriptionTemplate,
+    { ...templateData, isFieldSession: !!targetFieldId, targetLabel: protectMacros(targetLabel) },
+    globalContext.substituteParams,
+  );
 
   initialMessages.push({
     id: `im-${initialMessages.length}`,
