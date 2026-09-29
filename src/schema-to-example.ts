@@ -63,6 +63,24 @@ function nonNullType(t: any): any {
   return t;
 }
 
+// Returns 0, or the closest value to it that satisfies the schema's bounds.
+function numberExample(schema: any, isInteger: boolean): number {
+  let value = 0;
+  if (typeof schema.minimum === 'number' && value < schema.minimum) {
+    value = isInteger ? Math.ceil(schema.minimum) : schema.minimum;
+  }
+  if (typeof schema.exclusiveMinimum === 'number' && value <= schema.exclusiveMinimum) {
+    value = isInteger ? Math.floor(schema.exclusiveMinimum) + 1 : schema.exclusiveMinimum + 1;
+  }
+  if (typeof schema.maximum === 'number' && value > schema.maximum) {
+    value = isInteger ? Math.floor(schema.maximum) : schema.maximum;
+  }
+  if (typeof schema.exclusiveMaximum === 'number' && value >= schema.exclusiveMaximum) {
+    value = isInteger ? Math.ceil(schema.exclusiveMaximum) - 1 : schema.exclusiveMaximum - 1;
+  }
+  return value;
+}
+
 function generateExample(schema: any): any {
   if (!schema || typeof schema !== 'object') return null;
 
@@ -127,10 +145,10 @@ function generateExample(schema: any): any {
     }
 
     case 'integer':
-      return 0;
+      return numberExample(schema, true);
 
     case 'number':
-      return 0;
+      return numberExample(schema, false);
 
     case 'boolean':
       return false;

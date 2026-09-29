@@ -7,8 +7,31 @@ const xmlParser = new XMLParser({
   allowBooleanAttributes: true,
 });
 
+// Keeps tag values as strings so they can be coerced per schema (e.g. "007" stays "007" for string fields).
+const schemaXmlParser = new XMLParser({
+  ignoreAttributes: true,
+  textNodeName: '#text',
+  trimValues: true,
+  allowBooleanAttributes: true,
+  parseTagValue: false,
+});
+
 export interface ParseOptions {
   schema?: any;
+}
+
+function coerceValue(value: any, schema: any): any {
+  if (schema?.type === 'string' && typeof value !== 'string') {
+    return String(value);
+  }
+  if ((schema?.type === 'integer' || schema?.type === 'number') && typeof value === 'string' && value.trim() !== '') {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : value;
+  }
+  if (schema?.type === 'boolean' && (value === 'true' || value === 'false')) {
+    return value === 'true';
+  }
+  return value;
 }
 
 function ensureArray(data: any, schema: any) {
@@ -24,7 +47,21 @@ function ensureArray(data: any, schema: any) {
 
     // Ensure the property is an array if the schema requires it and it's not one already.
     if (propSchema.type === 'array' && !Array.isArray(propData)) {
-      propData = [propData];
+      // Unwrap <item> wrappers, e.g. <list><item>a</item><item>b</item></list>.
+      if (
+        typeof propData === 'object' &&
+        propData !== null &&
+        Object.keys(propData).length === 1 &&
+        'item' in propData &&
+        !propSchema.items?.properties?.item
+      ) {
+        propData = propData.item;
+      }
+      propData = Array.isArray(propData) ? propData : [propData];
+    }
+    if (propSchema.type === 'array') {
+      // An empty tag (e.g. <list></list> or <list/>) means an empty list, not a list with an empty item.
+      propData = propData.filter((item: any) => item !== '');
       data[key] = propData;
     }
 
@@ -36,12 +73,20 @@ function ensureArray(data: any, schema: any) {
     }
 
     // Coerce types to match schema, for both single properties and items within an array.
-    if (propSchema.type === 'string' && typeof propData !== 'string') {
-      data[key] = String(propData);
-    } else if (propSchema.type === 'array' && propSchema.items?.type === 'string' && Array.isArray(propData)) {
-      data[key] = propData.map(String);
+    if (propSchema.type === 'array') {
+      data[key] = propData.map((item: any) => coerceValue(item, propSchema.items));
+    } else {
+      data[key] = coerceValue(propData, propSchema);
     }
   }
+}
+
+// Escapes `&` that doesn't start an entity, leaving CDATA sections untouched.
+function escapeBareAmpersands(xml: string): string {
+  return xml
+    .split(/(<!\[CDATA\[[\s\S]*?\]\]>)/)
+    .map((part, i) => (i % 2 === 1 ? part : part.replace(/&(?!(?:[a-zA-Z]+|#\d+|#x[0-9a-fA-F]+);)/g, '&amp;')))
+    .join('');
 }
 
 function extractLastCodeBlock(content: string): string | null {
@@ -93,12 +138,13 @@ export function parseResponse(
         // The validator is too strict for partial content, so we bypass it in those cases.
         // A simple heuristic: if it doesn't end with the closing root tag, it's likely partial.
         if (options.schema) {
+          cleanedContent = escapeBareAmpersands(cleanedContent);
           const validationResult = XMLValidator.validate(cleanedContent);
           if (validationResult !== true) {
             throw new Error(`Model response is not valid XML: ${validationResult.err.msg}`);
           }
         }
-        let parsedXml = xmlParser.parse(cleanedContent);
+        let parsedXml = (options.schema ? schemaXmlParser : xmlParser).parse(cleanedContent);
         if (parsedXml.root) {
           parsedXml = parsedXml.root;
         } else if (parsedXml.response) {

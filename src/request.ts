@@ -133,7 +133,16 @@ export async function makeStructuredRequest<T extends z.ZodType<any, any, any>>(
       schema: schemaString,
     };
 
-    const resolvedPrompt = Handlebars.compile(promptTemplate, { noEscape: true, strict: true })(templateContext);
+    let resolvedPrompt: string;
+    try {
+      resolvedPrompt = Handlebars.compile(promptTemplate, { noEscape: true, strict: true })(templateContext);
+    } catch (error: any) {
+      const label = settings.prompts[promptTemplateKey]?.label ?? promptTemplateKey;
+      throw new Error(
+        `Failed to render the "${label}" prompt template: ${error?.message ?? error}. ` +
+          `Available variables: ${Object.keys(templateContext).join(', ')}.`,
+      );
+    }
     const instructionMessage: Message = { role: 'system', content: resolvedPrompt };
 
     response = await makeRequest(
