@@ -17,10 +17,11 @@ import {
   DEFAULT_REVISE_TASK_DESCRIPTION,
 } from './constants.js';
 import { globalContext } from './generate.js';
+import { migrateSettings, updateDefaultPrompts } from './settings-migration.js';
 
 export const extensionName = 'SillyTavern-Character-Creator';
 export const VERSION = '0.3.0';
-export const FORMAT_VERSION = 'F_1.10';
+export const FORMAT_VERSION = 'F_1.11';
 
 export const KEYS = {
   EXTENSION: 'charCreator',
@@ -359,9 +360,12 @@ export const settingsManager = new ExtensionSettingsManager<ExtensionSettings>(K
 
 export async function initializeSettings(): Promise<void> {
   return new Promise((resolve, _reject) => {
+    // The manager compares format versions as strings ('F_1.10' < 'F_1.9'), so it only stores the defaults
+    // and fills a missing version here, and the migrations run through migrateSettings.
     settingsManager
-      .initializeSettings({
-        strategy: [
+      .initializeSettings({ strategy: [] })
+      .then(() =>
+        migrateSettings(settingsManager.getSettings(), [
           {
             from: '*',
             to: 'F_1.4',
@@ -437,7 +441,7 @@ export async function initializeSettings(): Promise<void> {
                 },
 
                 // Generic Prompt Presets
-                promptPreset: previous?.default ?? 'default',
+                promptPreset: previous?.promptPreset ?? 'default',
                 promptPresets: previous?.promptPresets ?? {
                   default: {
                     content:
@@ -693,9 +697,27 @@ export async function initializeSettings(): Promise<void> {
               return response;
             },
           },
-        ],
-      })
-      .then((_result) => {
+          {
+            from: 'F_1.10',
+            to: 'F_1.11',
+            action(previous: ExtensionSettings): ExtensionSettings {
+              // Update the changed prompts if they were default
+              return updateDefaultPrompts(previous, {
+                stDescription: DEFAULT_CHAR_CARD_DESCRIPTION,
+                xmlFormat: DEFAULT_XML_FORMAT_DESC,
+                jsonFormat: DEFAULT_JSON_FORMAT_DESC,
+                noneFormat: DEFAULT_NONE_FORMAT_DESC,
+                reviseXmlPrompt: DEFAULT_REVISE_XML_PROMPT,
+              });
+            },
+          },
+        ]),
+      )
+      .then((migrated) => {
+        if (migrated) {
+          globalContext.extensionSettings[KEYS.EXTENSION] = { ...migrated, version: VERSION };
+          settingsManager.saveSettings();
+        }
         resolve();
       })
       .catch((error) => {

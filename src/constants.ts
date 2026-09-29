@@ -81,11 +81,14 @@ This is a "style guide" that teaches the AI *how* your character speaks, thinks,
     *   Use {{user}} and {{char}} to create 2-3 short exchanges.
     *   Showcase a range of emotions.
     *   Mix dialogue with actions (in asterisks) to demonstrate their body language.
+    *   Start each exchange with a <START> line. SillyTavern uses it to separate the examples.
 *   **Example**:
     \`\`\`
+    <START>
     {{user}}: "What makes you think your plan will work?"
     {{char}}: *A slow, confident smirk spreads across her face as she leans back in her chair, boots resting on the scarred metal desk.* "Because I accounted for every variable. Especially the human one—your greed."
 
+    <START>
     {{user}}: "I'm not sure I can do this."
     {{char}}: *Her expression softens for a brief moment. She places a reassuring hand on {{user}}'s shoulder, her calloused fingers a surprising comfort.* "Fear is just a signal. It tells you what you need to protect. Now, let's protect it together."
     \`\`\`
@@ -131,36 +134,25 @@ export const DEFAULT_CHAR_CARD_DEFINITION_TEMPLATE = `{{#if characters}}
 {{/if}}`;
 
 export const DEFAULT_XML_FORMAT_DESC = `=== RESPONSE FORMAT INSTRUCTIONS ===
-You MUST provide your response wrapped ONLY in a single <response> XML tag.
-
-When providing code in your response, wrap it in triple backticks:
+You MUST provide your response wrapped ONLY in a single <response> XML tag, with the content inside a CDATA section.
+Quotes, &, <START> and line breaks are safe inside CDATA. Never write ]]> inside it.
 
 Example:
-\`\`\`
-<response>Generated content for the field goes here.</response>
-\`\`\``;
+<response><![CDATA[Generated content for the field goes here.]]></response>`;
 
 export const DEFAULT_JSON_FORMAT_DESC = `=== RESPONSE FORMAT INSTRUCTIONS ===
 You MUST provide your response as a JSON object with a single key "response" containing the generated content as a string.
 
-When providing code in your response, wrap it in triple backticks:
-
 Example:
-\`\`\`
 {
   "response": "Generated content for the field goes here."
-}
-\`\`\``;
+}`;
 
 export const DEFAULT_NONE_FORMAT_DESC = `=== RESPONSE FORMAT INSTRUCTIONS ===
 You MUST provide ONLY the raw text content for the field, without any formatting, XML tags, JSON structure, or explanatory text. Just the content itself.
 
-When providing code in your response, wrap it in triple backticks:
-
 Example:
-\`\`\`
-Generated content for the field goes here.
-\`\`\``;
+Generated content for the field goes here.`;
 
 export const DEFAULT_OUTPUT_FORMAT_INSTRUCTIONS = '{{activeFormatInstructions}}';
 
@@ -253,16 +245,20 @@ export const DEFAULT_REVISE_XML_PROMPT = `You are a highly specialized AI assist
 **CRITICAL INSTRUCTIONS:**
 1.  You MUST wrap the entire XML object in a markdown code block (\`\`\`xml\\n...\\n\`\`\`).
 2.  Your response MUST NOT contain any explanatory text, comments, or any other content outside of this single code block.
-3.  The XML object inside the code block MUST be valid.
+3.  The XML object inside the code block MUST be valid and MUST be a single <root> element, following the structure described by the JSON schema below.
+4.  Wrap every text value in a CDATA section, e.g. <name><![CDATA[Text with "quotes", & and <START>]]></name>. Never write ]]> inside a CDATA section.
+5.  For lists, write each entry as an <item> element inside the list's element, as shown in the example.
 
-**JSON SCHEMA TO FOLLOW:**
+**JSON SCHEMA OF THE XML STRUCTURE:**
 \`\`\`json
 {{schema}}
 \`\`\`
 
 **EXAMPLE OF A PERFECT RESPONSE:**
-\`\`\`json
+\`\`\`xml
+<root>
 {{example_response}}
+</root>
 \`\`\``;
 
 export const DEFAULT_REVISE_TASK_DESCRIPTION = `You are an expert character writer assisting a user. Your task is to respond with the modified character data in the required structured format.
