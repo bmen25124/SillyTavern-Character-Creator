@@ -24,6 +24,7 @@ import { CharacterField } from './CharacterField.js';
 import { AlternateGreetings, Greeting } from './AlternateGreetings.js';
 import { CompareFieldPopup } from './CompareFieldPopup.js';
 import { CharacterState, ReviseSessionType } from '../revise-types.js';
+import { applyReviseState } from '../revise-state.js';
 import { ReviseSessionManager } from './ReviseSessionManager.js';
 import { buildWorldInfoCharacter } from '../world-info-export.js';
 import { buildWorldInfoDropdownItems } from '../world-info-selection.js';
@@ -211,11 +212,7 @@ export const MainPopup: FC = () => {
     setReviseSessionManagerOpen(true);
   };
   const handleApplyReviseSessionChanges = (newState: CharacterState) => {
-    setSession((prev) => ({
-      ...prev,
-      fields: { ...prev.fields, ...newState.fields },
-      draftFields: { ...prev.draftFields, ...newState.draftFields },
-    }));
+    setSession((prev) => applyReviseState(prev, newState));
     st_echo('success', 'Changes from revise session applied.');
     setReviseSessionManagerOpen(false);
   };
