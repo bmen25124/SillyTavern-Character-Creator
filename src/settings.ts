@@ -17,6 +17,7 @@ import {
   DEFAULT_REVISE_TASK_DESCRIPTION,
 } from './constants.js';
 import { globalContext } from './generate.js';
+import { migrateSettings } from './settings-migration.js';
 
 export const extensionName = 'SillyTavern-Character-Creator';
 export const VERSION = '0.3.0';
@@ -359,9 +360,12 @@ export const settingsManager = new ExtensionSettingsManager<ExtensionSettings>(K
 
 export async function initializeSettings(): Promise<void> {
   return new Promise((resolve, _reject) => {
+    // The manager compares format versions as strings ('F_1.10' < 'F_1.9'), so it only stores the defaults
+    // and fills a missing version here, and the migrations run through migrateSettings.
     settingsManager
-      .initializeSettings({
-        strategy: [
+      .initializeSettings({ strategy: [] })
+      .then(() =>
+        migrateSettings(settingsManager.getSettings(), [
           {
             from: '*',
             to: 'F_1.4',
@@ -437,7 +441,7 @@ export async function initializeSettings(): Promise<void> {
                 },
 
                 // Generic Prompt Presets
-                promptPreset: previous?.default ?? 'default',
+                promptPreset: previous?.promptPreset ?? 'default',
                 promptPresets: previous?.promptPresets ?? {
                   default: {
                     content:
@@ -693,9 +697,13 @@ export async function initializeSettings(): Promise<void> {
               return response;
             },
           },
-        ],
-      })
-      .then((_result) => {
+        ]),
+      )
+      .then((migrated) => {
+        if (migrated) {
+          globalContext.extensionSettings[KEYS.EXTENSION] = { ...migrated, version: VERSION };
+          settingsManager.saveSettings();
+        }
         resolve();
       })
       .catch((error) => {
