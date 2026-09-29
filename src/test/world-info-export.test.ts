@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import * as Handlebars from 'handlebars';
 import '../handlebars-helpers.js';
 import { DEFAULT_CHAR_CARD_DEFINITION_TEMPLATE, DEFAULT_WORLD_INFO_CHARACTER_DEFINITION } from '../constants.js';
-import { buildWorldInfoCharacter } from '../world-info-export.js';
+import { buildWorldInfoCharacter, renderWorldInfoCharacterEntry } from '../world-info-export.js';
 
 describe('world info character export', () => {
   test('renders field values instead of field objects', () => {
@@ -43,5 +43,24 @@ describe('world info character export', () => {
     expect(content).toContain('First alternate.');
     expect(content).toContain('### 2');
     expect(content).toContain('Second alternate.');
+  });
+
+  test('renders the entry without HTML-escaping and with char/user macros', () => {
+    const fields = {
+      name: { label: 'Name', value: 'Ari', prompt: '' },
+      description: { label: 'Description', value: `She says "don't" & means it.`, prompt: '' },
+    };
+    const greetings = [{ value: '<b>Hi</b>' }];
+
+    const content = renderWorldInfoCharacterEntry(DEFAULT_WORLD_INFO_CHARACTER_DEFINITION, fields, greetings);
+    expect(content).toContain(`- **Description:** She says "don't" & means it.`);
+    expect(content).toContain('**1:** <b>Hi</b>');
+
+    const custom = renderWorldInfoCharacterEntry(
+      `{{!-- custom template --}}{{{character.name}}}: {{{character.description}}} ({{char}}, {{user}})`,
+      fields,
+      greetings,
+    );
+    expect(custom).toBe(`Ari: She says "don't" & means it. (Ari, {{user}})`);
   });
 });

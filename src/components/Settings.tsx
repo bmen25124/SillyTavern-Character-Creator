@@ -264,6 +264,7 @@ export const CharacterCreatorSettings: FC = () => {
           [selectedSystemPrompt]: {
             ...s.prompts[selectedSystemPrompt],
             content: DEFAULT_PROMPT_CONTENTS[selectedSystemPrompt as SystemPromptKey],
+            isDefault: true,
           },
         };
       });
