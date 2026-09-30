@@ -1,5 +1,5 @@
 import { buildPrompt, BuildPromptOptions, ExtensionSettingsManager, Message } from 'sillytavern-utils-lib';
-import { parseResponse, getPrefilled } from './parsers.js';
+import { parseResponse, getPrefilled, mergeContinuation } from './parsers.js';
 import { ExtractedData } from 'sillytavern-utils-lib/types';
 import { Character } from 'sillytavern-utils-lib/types';
 import { WIEntry } from 'sillytavern-utils-lib/types/world-info';
@@ -44,6 +44,12 @@ export interface Session {
   draftFields: Record<string, CharacterField>;
   lastLoadedCharacterId: string;
 }
+
+/**
+ * Sent before the prefill of a continue request, so the model knows to add text instead of closing or rewriting it.
+ */
+export const CONTINUE_INSTRUCTION =
+  'Continue the current text of the {{targetField}} field from exactly where it stops. Output only the new text that comes after it, in the required output format. Do not repeat, rewrite or summarize the existing text.';
 
 // @ts-ignore
 const dumbSettings = new ExtensionSettingsManager<ExtensionSettings>('dumb', {}).getSettings();
@@ -249,8 +255,12 @@ export async function runCharacterFieldGeneration({
       }
     }
 
-    // If we're continuing from previous content, add it as an assistant message
+    // If we're continuing from previous content, ask for a continuation and add the content as an assistant message
     if (continueFrom) {
+      messages.push({
+        role: 'user',
+        content: Handlebars.compile(CONTINUE_INSTRUCTION, { noEscape: true })(templateData),
+      });
       messages.push({
         role: 'assistant',
         content: getPrefilled(continueFrom, outputFormat),
@@ -264,11 +274,17 @@ export async function runCharacterFieldGeneration({
     maxResponseToken,
   )) as ExtractedData;
 
-  // For "continue" requests, the model only returns the new part.
-  // We must combine the start of the structure with the model's completion to parse it correctly.
-  const contentToParse = continueFrom ? getPrefilled(continueFrom, outputFormat) + response.content : response.content;
+  // For "continue" requests, the model should only return the new part, but some models ignore the prefill.
+  if (continueFrom) {
+    const continued = mergeContinuation(continueFrom, response.content, outputFormat);
+    if (continued.trim() === continueFrom.trim()) {
+      st_echo('warning', "The model didn't add any text. Try again or use a different model.");
+      return continueFrom;
+    }
+    return continued;
+  }
 
-  const result = parseResponse(contentToParse, outputFormat);
+  const result = parseResponse(response.content, outputFormat);
 
   let finalContent: string;
   if (typeof result === 'string') {
